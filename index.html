@@ -173,6 +173,11 @@ tr:hover td{
 </head>
 
 <body>
+<div id="loginArea" style="margin:20px 0;">
+  <input id="loginEmail" type="email" placeholder="メールアドレス">
+  <input id="loginPassword" type="password" placeholder="パスワード">
+  <button onclick="login()">ログイン</button>
+</div>
 
 <!-- ログイン画面 -->
 <div id="loginScreen" class="overlay">
@@ -495,108 +500,189 @@ function deleteCategory(i){
 /* =========================
    一覧
 ========================= */
-function renderList(){
-  const arr=loadData();
-  listBody.innerHTML="";
-  arr.forEach((e,i)=>{
-    const typeLabel=e.type==="income"
-      ? `<span class="badge badge-income">収入</span>`
-      : `<span class="badge badge-expense">支出</span>`;
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
+// =========================
+//   取引一覧（Supabase版）
+// =========================
+async function renderList() {
+  listBody.innerHTML = "";
+
+  // ★ Supabase からデータ取得（date 昇順）
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .order("date", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    listBody.innerHTML = "<tr><td colspan='8'>読み込みに失敗しました</td></tr>";
+    return;
+  }
+
+  data.forEach((e, i) => {
+    const typeLabel =
+      e.type === "income"
+        ? `<span class="badge badge-income">収入</span>`
+        : `<span class="badge badge-expense">支出</span>`;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
       <td>${safeText(e.date)}</td>
       <td>${typeLabel}</td>
       <td>${safeText(e.item)}</td>
       <td>${e.amount}</td>
       <td>${safeText(e.category)}</td>
-      <td>${safeText(e.note||"")}</td>
-      <td><button onclick="delEntry(${i})">削除</button></td>
+      <td>${safeText(e.note || "")}</td>
+      <td><button onclick="delEntry('${e.id}')">削除</button></td>
     `;
     listBody.appendChild(tr);
   });
 }
 
-function delEntry(i){
-  const arr=loadData();
-  arr.splice(i,1);
-  saveData(arr);
-  renderList();
-  renderSummary();
-}
-/* =========================
-   取引登録
-========================= */
-addBtn.onclick=()=>{
-  addMsg.textContent="";
-  const d=date.value;
-  const t=type.value;
-  const cat=categorySelect.value;
-  const it=item.value.trim();
-  const am=parseFloat(amount.value);
-  const no=note.value.trim();
+// =========================
+//   削除（Supabase版）
+// =========================
+async function delEntry(id) {
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id);
 
-  if(!d||!it||isNaN(am)||am<0){
-    addMsg.textContent="日付・品目・金額を確認してください";
+  if (error) {
+    console.error(error);
+    alert("削除に失敗しました");
     return;
   }
 
-  const arr=loadData();
-  arr.push({date:d,type:t,item:it,amount:am,category:cat,note:no});
-  saveData(arr);
+  renderList();
+  renderSummary();
+}
 
-  item.value="";
-  amount.value="";
-  note.value="";
+/* =========================
+   取引登録
+========================= */
+addBtn.onclick = async () => {
+  addMsg.textContent = "";
+  const d = date.value;
+  const t = type.value;
+  const cat = categorySelect.value;
+  const it = item.value.trim();
+  const am = parseFloat(amount.value);
+  const no = note.value.trim();
+
+  if (!d || !it || isNaN(am) || am < 0) {
+    addMsg.textContent = "日付・品目・金額を確認してください";
+    return;
+  }
+
+  // ★ ログイン中のユーザーIDを取得
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    alert("ログインしてください");
+    return;
+  }
+
+  // ★ Supabase に保存（user_id を含める）
+  const { error } = await supabase
+    .from("transactions")
+    .insert([
+      {
+        user_id: user.id,
+        date: d,
+        type: t,
+        item: it,
+        amount: am,
+        category: cat,
+        note: no
+      }
+    ]);
+
+  if (error) {
+    console.error(error);
+    addMsg.textContent = "保存に失敗しました…";
+    return;
+  }
+
+  item.value = "";
+  amount.value = "";
+  note.value = "";
+
   renderList();
   renderSummary();
 };
 
-/* =========================
-   ダッシュボード
-========================= */
-function renderSummary(){
-  const arr=loadData();
-  let income=0,expense=0;
-  const byMonth={};
-  arr.forEach(e=>{
-    if(e.type==="income") income+=e.amount;
-    else expense+=e.amount;
 
-    const m=(e.date||"").slice(0,7);
-    if(!m) return;
-    if(!byMonth[m]) byMonth[m]={income:0,expense:0};
-    if(e.type==="income") byMonth[m].income+=e.amount;
-    else byMonth[m].expense+=e.amount;
+// =========================
+//   集計（Supabase版）
+// =========================
+async function renderSummary() {
+  // ★ Supabase から全データ取得
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    dashSummary.textContent = "集計の読み込みに失敗しました";
+    return;
+  }
+
+  let income = 0, expense = 0;
+  const byMonth = {};
+
+  data.forEach(e => {
+    if (e.type === "income") income += e.amount;
+    else expense += e.amount;
+
+    const m = (e.date || "").slice(0, 7);
+    if (!m) return;
+
+    if (!byMonth[m]) byMonth[m] = { income: 0, expense: 0 };
+
+    if (e.type === "income") byMonth[m].income += e.amount;
+    else byMonth[m].expense += e.amount;
   });
-  const balance=income-expense;
-  dashSummary.textContent=`収入 ${income.toLocaleString()} 円 / 支出 ${expense.toLocaleString()} 円 / 残高 ${balance.toLocaleString()} 円`;
 
-  const labels=Object.keys(byMonth).sort();
-  const incomeData=labels.map(m=>byMonth[m].income);
-  const expenseData=labels.map(m=>byMonth[m].expense);
+  const balance = income - expense;
 
-  if(monthChart){monthChart.destroy();}
-  const ctx=document.getElementById("monthChart").getContext("2d");
-  monthChart=new Chart(ctx,{
-    type:"bar",
-    data:{
+  // 上部のサマリー表示
+  dashSummary.textContent =
+    `収入 ${income.toLocaleString()} 円 / ` +
+    `支出 ${expense.toLocaleString()} 円 / ` +
+    `残高 ${balance.toLocaleString()} 円`;
+
+  // 月別グラフ用データ
+  const labels = Object.keys(byMonth).sort();
+  const incomeData = labels.map(m => byMonth[m].income);
+  const expenseData = labels.map(m => byMonth[m].expense);
+
+  // 既存チャート破棄
+  if (monthChart) monthChart.destroy();
+
+  const ctx = document.getElementById("monthChart").getContext("2d");
+
+  monthChart = new Chart(ctx, {
+    type: "bar",
+    data: {
       labels,
-      datasets:[
-        {label:"収入",data:incomeData,backgroundColor:"rgba(74,222,128,0.6)"},
-        {label:"支出",data:expenseData,backgroundColor:"rgba(248,113,113,0.7)"}
+      datasets: [
+        { label: "収入", data: incomeData, backgroundColor: "rgba(74,222,128,0.6)" },
+        { label: "支出", data: expenseData, backgroundColor: "rgba(248,113,113,0.7)" }
       ]
     },
-    options:{
-      responsive:true,
-      plugins:{legend:{labels:{color:"#e2e8f0"}}},
-      scales:{
-        x:{ticks:{color:"#e2e8f0"},grid:{color:"rgba(30,64,175,0.4)"}},
-        y:{ticks:{color:"#e2e8f0"},grid:{color:"rgba(30,64,175,0.4)"}}
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: "#e2e8f0" } } },
+      scales: {
+        x: { ticks: { color: "#e2e8f0" }, grid: { color: "rgba(30,64,175,0.4)" } },
+        y: { ticks: { color: "#e2e8f0" }, grid: { color: "rgba(30,64,175,0.4)" } }
       }
     }
   });
 }
+
+
 
 /* =========================
    ページ切替
@@ -830,6 +916,25 @@ window.addEventListener("load",()=>{
   main.style.display="none";
   loginScreen.style.display="flex";
 });
+  async function login() {
+  const email = loginEmail.value;
+  const password = loginPassword.value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("ログイン失敗");
+    return;
+  }
+
+  alert("ログイン成功");
+  renderList();
+  renderSummary();
+}
+
 </script>
 
 </body>
