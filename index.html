@@ -2,341 +2,412 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>経理アプリ Ultimate+ Fixed</title>
+<title>経理アプリ Ultimate Secure</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
-  --bg:#0f172a;
-  --card:#1e293b;
+  --bg:#020617;
+  --card:#0f172a;
   --accent:#38bdf8;
   --accent2:#22c55e;
   --text:#e2e8f0;
   --sub:#94a3b8;
   --income:#4ade80;
-  --expense:#f87171;
+  --expense:#f97373;
+  --danger:#f97373;
 }
 *{box-sizing:border-box;}
 body{
   margin:0;
-  background:var(--bg);
+  background:radial-gradient(circle at top,#1e293b 0,#020617 55%);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  display:flex;
   height:100vh;
-}
-
-/* ログイン・登録・リセット画面 */
-#loginScreen,#regScreen,#resetScreen,#resetQuestionScreen,#resetNewPassScreen{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-#loginBox{
-  background:var(--card);
-  padding:30px;
-  border-radius:16px;
-  width:330px;
-}
-
-/* サイドバー */
-#sidebar{
-  width:250px;
-  background:#0b1120;
-  padding:20px;
-  display:none; /* ←ログイン前は非表示 */
-  flex-direction:column;
-  gap:10px;
-}
-.menu-btn{
-  padding:10px;
-  border:1px solid rgba(255,255,255,0.15);
-  background:transparent;
-  color:var(--text);
-  border-radius:8px;
-  cursor:pointer;
-  text-align:left;
-}
-.menu-btn:hover{
-  background:rgba(255,255,255,0.1);
-  border-color:var(--accent);
-}
-.menu-btn.primary{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-  color:white;
-}
-
-/* メイン画面 */
-#main{
-  flex:1;
-  padding:20px;
-  overflow-y:auto;
-  display:none; /* ←ログイン前は非表示 */
-}
-.card{
-  background:var(--card);
-  padding:20px;
-  border-radius:14px;
-  margin-bottom:20px;
+  display:flex;
 }
 input,select,textarea,button{
   width:100%;
   padding:10px;
   margin:6px 0;
   border-radius:8px;
-  border:1px solid rgba(255,255,255,0.2);
-  background:#0f172a;
+  border:1px solid rgba(148,163,184,0.5);
+  background:#020617;
   color:var(--text);
+  font-size:14px;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px rgba(56,189,248,0.5);
 }
 button{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
   cursor:pointer;
+  font-weight:600;
 }
-button:hover{filter:brightness(1.1);}
+button:hover{filter:brightness(1.08);}
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+label{font-size:13px;color:var(--sub);}
+small{font-size:11px;color:var(--sub);}
+
+/* オーバーレイ画面 */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.9);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.box{
+  background:var(--card);
+  padding:24px 24px 18px;
+  border-radius:16px;
+  width:340px;
+  max-width:90vw;
+  box-shadow:0 20px 40px rgba(0,0,0,0.6);
+}
+.box h2{
+  margin:0 0 10px;
+  font-size:20px;
+}
+.msg{
+  min-height:18px;
+  font-size:12px;
+  margin-top:4px;
+}
+
+/* レイアウト */
+#sidebar{
+  width:250px;
+  background:#020617;
+  border-right:1px solid rgba(148,163,184,0.3);
+  padding:16px;
+  display:none;
+  flex-direction:column;
+  gap:8px;
+}
+#main{
+  flex:1;
+  padding:16px;
+  overflow-y:auto;
+  display:none;
+}
+.menu-btn{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid rgba(148,163,184,0.4);
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  font-size:14px;
+}
+.menu-btn:hover{
+  background:rgba(15,23,42,0.9);
+  border-color:var(--accent);
+}
+.menu-btn.active{
+  background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(34,197,94,0.2));
+  border-color:var(--accent2);
+}
+.card{
+  background:rgba(15,23,42,0.95);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+.card h2{
+  margin-top:0;
+  font-size:18px;
+}
+
+/* テーブル */
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td{
+  padding:6px 8px;
+  border-bottom:1px solid rgba(51,65,85,0.9);
+}
+th{
+  text-align:left;
+  color:var(--sub);
+  font-weight:500;
+}
+tr:hover td{
+  background:rgba(15,23,42,0.8);
+}
+
+/* スマホ対応 */
+@media(max-width:800px){
+  body{flex-direction:column;}
+  #sidebar{
+    width:100%;
+    flex-direction:row;
+    overflow-x:auto;
+  }
+  .menu-btn{flex:1;white-space:nowrap;font-size:12px;}
+}
+
+/* 小さなラベル */
+.badge{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:999px;
+  font-size:11px;
+}
+.badge-income{background:rgba(74,222,128,0.15);color:var(--income);}
+.badge-expense{background:rgba(248,113,113,0.15);color:var(--expense);}
+.badge-muted{background:rgba(148,163,184,0.2);color:var(--sub);}
 </style>
 </head>
 
 <body>
 
 <!-- ログイン画面 -->
-<div id="loginScreen">
-  <div id="loginBox">
+<div id="loginScreen" class="overlay">
+  <div class="box">
     <h2>ログイン</h2>
-    <input id="loginUser" placeholder="ユーザーID">
-    <input id="loginPass" type="password" placeholder="パスワード">
+    <label>ユーザーID</label>
+    <input id="loginUser" autocomplete="username">
+    <label>パスワード</label>
+    <input id="loginPass" type="password" autocomplete="current-password">
     <button id="loginBtn">ログイン</button>
-    <p id="loginMsg" style="color:#f87171;"></p>
-    <button onclick="regScreen.style.display='flex'">新規登録</button>
-    <button id="forgotLink">パスワードを忘れた</button>
+    <div id="loginMsg" class="msg" style="color:var(--danger);"></div>
+    <button id="toRegBtn" style="margin-top:6px;background:#020617;border:1px solid rgba(148,163,184,0.6);">
+      新規登録へ
+    </button>
+    <button id="toResetBtn" style="margin-top:6px;background:#020617;border:1px solid rgba(148,163,184,0.6);">
+      パスワードを忘れた
+    </button>
   </div>
 </div>
 
 <!-- 新規登録 -->
-<div id="regScreen">
-  <div id="loginBox">
+<div id="regScreen" class="overlay">
+  <div class="box">
     <h2>新規登録</h2>
-    <input id="regUser" placeholder="ユーザーID">
-    <input id="regPass1" type="password" placeholder="パスワード">
+    <label>ユーザーID</label>
+    <input id="regUser" autocomplete="off">
+
+    <label>パスワード</label>
+    <input id="regPass1" type="password" autocomplete="new-password">
+    <small>12文字以上・英大文字/小文字/数字を含む</small>
     <input id="regPass2" type="password" placeholder="パスワード確認">
+
+    <label>秘密の質問の方式</label>
     <select id="questionType">
-      <option value="">質問方式</option>
+      <option value="">選択してください</option>
       <option value="A">選択式</option>
       <option value="B">自由入力</option>
     </select>
+
     <select id="questionA" style="display:none;">
       <option value="">質問を選択</option>
       <option value="出身地は？">出身地は？</option>
       <option value="好きな食べ物は？">好きな食べ物は？</option>
+      <option value="初めて買ったCDは？">初めて買ったCDは？</option>
+      <option value="好きなマジシャンは？">好きなマジシャンは？</option>
     </select>
-    <input id="questionB" placeholder="質問を入力" style="display:none;">
+
+    <input id="questionB" placeholder="自分で質問を入力" style="display:none;">
+
+    <label>秘密の質問の答え</label>
     <input id="answer" placeholder="答え">
+
     <button id="regBtn">登録</button>
-    <p id="regMsg" style="color:#f87171;"></p>
-    <button onclick="regScreen.style.display='none'; loginScreen.style.display='flex';">戻る</button>
+    <div id="regMsg" class="msg" style="color:var(--danger);"></div>
+    <button id="backToLoginFromReg" style="margin-top:6px;background:#020617;border:1px solid rgba(148,163,184,0.6);">
+      ログインに戻る
+    </button>
   </div>
 </div>
-
-<!-- パスワード再設定（質問入力） -->
-<div id="resetScreen">
-  <div id="loginBox">
+<!-- パスワード再設定：ID入力 -->
+<div id="resetScreen" class="overlay">
+  <div class="box">
     <h2>パスワード再設定</h2>
-    <input id="resetEmail" placeholder="ユーザーID">
+    <label>ユーザーID</label>
+    <input id="resetId">
     <button id="resetNext">次へ</button>
-    <p id="resetMsg" style="color:#f87171;"></p>
-    <button onclick="resetScreen.style.display='none'; loginScreen.style.display='flex';">戻る</button>
+    <div id="resetMsg" class="msg" style="color:var(--danger);"></div>
+    <button id="backToLoginFromReset" style="margin-top:6px;background:#020617;border:1px solid rgba(148,163,184,0.6);">
+      ログインに戻る
+    </button>
   </div>
 </div>
 
-<!-- パスワード再設定（質問に回答） -->
-<div id="resetQuestionScreen">
-  <div id="loginBox">
+<!-- パスワード再設定：質問表示 -->
+<div id="resetQuestionScreen" class="overlay">
+  <div class="box">
     <h2>秘密の質問</h2>
-    <p id="resetQuestion"></p>
+    <div id="resetQuestion" style="margin-bottom:6px;font-size:14px;color:var(--sub);"></div>
     <input id="resetAnswer" placeholder="答え">
-    <button id="resetAnswerBtn">次へ</button>
-    <p id="resetAnswerMsg" style="color:#f87171;"></p>
+    <button id="resetAnswerBtn">確認</button>
+    <div id="resetAnswerMsg" class="msg" style="color:var(--danger);"></div>
   </div>
 </div>
 
-<!-- パスワード再設定（新パスワード入力） -->
-<div id="resetNewPassScreen">
-  <div id="loginBox">
+<!-- パスワード再設定：新パスワード -->
+<div id="resetNewPassScreen" class="overlay">
+  <div class="box">
     <h2>新しいパスワード</h2>
-    <input id="newPass1" type="password" placeholder="新パスワード">
-    <input id="newPass2" type="password" placeholder="確認">
+    <input id="newPass1" type="password" placeholder="新しいパスワード">
+    <input id="newPass2" type="password" placeholder="確認用">
     <button id="resetPassBtn">変更</button>
-    <p id="resetPassMsg" style="color:#f87171;"></p>
+    <div id="resetPassMsg" class="msg" style="color:var(--danger);"></div>
   </div>
 </div>
 
 <!-- サイドバー -->
 <div id="sidebar">
-  <button class="menu-btn" onclick="showPage('dashboard')">📊 ダッシュボード</button>
-  <button class="menu-btn" onclick="showPage('add')">📝 取引登録</button>
-  <button class="menu-btn" onclick="showPage('list')">📄 一覧</button>
-  <button class="menu-btn" onclick="showPage('summary')">📈 集計</button>
-  <button class="menu-btn" onclick="showPage('month')">📅 月次集計</button>
-  <button class="menu-btn" onclick="showPage('year')">📆 年次集計</button>
-  <button class="menu-btn" onclick="showPage('stats')">📊 統計グラフ</button>
-  <button class="menu-btn" onclick="showPage('report')">📑 月次レポート</button>
-  <button class="menu-btn" onclick="showPage('category')">🏷 カテゴリ管理</button>
-  <button class="menu-btn" onclick="backup()">💾 バックアップ</button>
-  <button class="menu-btn" onclick="restoreZip()">📤 ZIP復元</button>
-  <button id="logoutBtn" class="menu-btn primary">🚪 ログアウト</button>
+  <button class="menu-btn" data-page="dashboard">📊 ダッシュボード</button>
+  <button class="menu-btn" data-page="add">📝 取引登録</button>
+  <button class="menu-btn" data-page="list">📄 一覧</button>
+  <button class="menu-btn" data-page="category">🏷 カテゴリ管理</button>
+  <button id="logoutBtn" class="menu-btn">🚪 ログアウト</button>
 </div>
 
-<!-- メイン画面 -->
+<!-- メイン -->
 <div id="main">
 
-<div id="page-dashboard" class="card">
-  <h2>ダッシュボード</h2>
-  <p id="dashTotal"></p>
-</div>
-<!-- ここから PART2 -->
-
-<div id="page-add" class="card" style="display:none;">
-  <h2>取引登録</h2>
-  <input id="date" type="date">
-  <select id="type">
-    <option value="expense">支出</option>
-    <option value="income">収入</option>
-  </select>
-  <select id="categorySelect"></select>
-  <input id="item" placeholder="品目">
-  <input id="amount" type="number" placeholder="金額">
-  <textarea id="note" rows="2" placeholder="メモ"></textarea>
-  <button id="addBtn">登録</button>
-</div>
-
-<div id="page-list" class="card" style="display:none;">
-  <h2>一覧</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th><th>日付</th><th>種別</th><th>品目</th><th>金額</th><th>カテゴリ</th><th>メモ</th><th>操作</th>
-      </tr>
-    </thead>
-    <tbody id="listBody"></tbody>
-  </table>
-</div>
-
-<div id="page-summary" class="card" style="display:none;">
-  <h2>集計</h2>
-  <canvas id="pieChart" width="400" height="300"></canvas>
-  <canvas id="barChart" width="400" height="300" style="margin-top:20px;"></canvas>
-</div>
-
-<div id="page-month" class="card" style="display:none;">
-  <h2>月次集計</h2>
-  <select id="monthSelect"></select>
-  <p id="monthTotal"></p>
-  <table>
-    <thead>
-      <tr><th>#</th><th>日付</th><th>種別</th><th>品目</th><th>金額</th><th>カテゴリ</th><th>メモ</th></tr>
-    </thead>
-    <tbody id="monthBody"></tbody>
-  </table>
-</div>
-
-<div id="page-year" class="card" style="display:none;">
-  <h2>年次集計</h2>
-  <select id="yearSelect"></select>
-  <p id="yearTotal"></p>
-  <table>
-    <thead>
-      <tr><th>#</th><th>日付</th><th>種別</th><th>品目</th><th>金額</th><th>カテゴリ</th><th>メモ</th></tr>
-    </thead>
-    <tbody id="yearBody"></tbody>
-  </table>
-</div>
-
-<div id="page-stats" class="card" style="display:none;">
-  <h2>統計グラフ</h2>
-  <select id="statsMode">
-    <option value="month">月ごと</option>
-    <option value="year">年ごと</option>
-  </select>
-  <select id="statsSelect"></select>
-  <canvas id="statsPie" width="400" height="300" style="margin-top:10px;"></canvas>
-  <canvas id="statsBar" width="400" height="300" style="margin-top:20px;"></canvas>
-</div>
-
-<div id="page-report" class="card" style="display:none;">
-  <h2>月次レポート</h2>
-  <select id="reportMonthSelect"></select>
-
-  <div id="reportTitle" style="font-size:18px; margin-top:10px;"></div>
-  <div id="reportMeta" style="font-size:12px; color:var(--sub); margin-bottom:10px;"></div>
-
-  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;">
-    <div class="card"><div>収入</div><div id="reportIncome"></div></div>
-    <div class="card"><div>支出</div><div id="reportExpense"></div></div>
-    <div class="card"><div>収支</div><div id="reportBalance"></div></div>
-    <div class="card"><div>件数</div><div id="reportCount"></div></div>
+  <div id="page-dashboard" class="card">
+    <h2>ダッシュボード</h2>
+    <p id="dashSummary" class="badge badge-muted"></p>
+    <canvas id="monthChart" height="120"></canvas>
   </div>
 
-  <table style="margin-top:15px;">
-    <thead>
-      <tr><th>カテゴリ</th><th>収入</th><th>支出</th><th>件数</th></tr>
-    </thead>
-    <tbody id="reportCategoryBody"></tbody>
-  </table>
-</div>
+  <div id="page-add" class="card" style="display:none;">
+    <h2>取引登録</h2>
+    <label>日付</label>
+    <input id="date" type="date">
+    <label>種別</label>
+    <select id="type">
+      <option value="expense">支出</option>
+      <option value="income">収入</option>
+    </select>
+    <label>カテゴリ</label>
+    <select id="categorySelect"></select>
+    <label>品目</label>
+    <input id="item" placeholder="例：コーヒー">
+    <label>金額</label>
+    <input id="amount" type="number" min="0" step="1" placeholder="例：500">
+    <label>メモ</label>
+    <textarea id="note" rows="2" placeholder="任意"></textarea>
+    <button id="addBtn">登録</button>
+    <div id="addMsg" class="msg" style="color:var(--danger);"></div>
+  </div>
 
-<div id="page-category" class="card" style="display:none;">
-  <h2>カテゴリ管理</h2>
-  <input id="newCategoryName" placeholder="カテゴリ名">
-  <button id="addCategoryBtn">追加</button>
-  <table>
-    <thead>
-      <tr><th>#</th><th>カテゴリ名</th><th>操作</th></tr>
-    </thead>
-    <tbody id="categoryBody"></tbody>
-  </table>
-</div>
+  <div id="page-list" class="card" style="display:none;">
+    <h2>一覧</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>日付</th><th>種別</th><th>品目</th><th>金額</th><th>カテゴリ</th><th>メモ</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
 
-<input type="file" id="zipRestore" style="display:none;">
+  <div id="page-category" class="card" style="display:none;">
+    <h2>カテゴリ管理</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input id="newCategoryName" placeholder="カテゴリ名" style="flex:1;">
+      <button id="addCategoryBtn" style="flex:0 0 120px;">追加</button>
+    </div>
+    <table style="margin-top:8px;">
+      <thead>
+        <tr><th>#</th><th>カテゴリ名</th><th>操作</th></tr>
+      </thead>
+      <tbody id="categoryBody"></tbody>
+    </table>
+  </div>
 
+</div> <!-- /main -->
 <script>
 /* =========================
-   基本関数
+   ユーティリティ
 ========================= */
-function enc(s){return btoa(s);}
-function dec(s){return atob(s);}
+function safeText(s){
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+function enc(s){return btoa(unescape(encodeURIComponent(s)));}
+function dec(s){
+  try{return decodeURIComponent(escape(atob(s)));}
+  catch(e){return "[]";}
+}
 async function sha256(s){
   const buf=new TextEncoder().encode(s);
   const hash=await crypto.subtle.digest("SHA-256",buf);
   return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-const USER_KEY="users";
-const DATA_KEY="data_";
-const CAT_KEY="cats_";
+const USER_KEY="users_v2";
+const DATA_KEY="data_v2_";
+const CAT_KEY="cats_v2_";
 let currentUser=null;
+let autoLogoutTimer=null;
+let monthChart=null;
 
 /* =========================
    ユーザー管理
 ========================= */
-function loadUsers(){return JSON.parse(localStorage.getItem(USER_KEY)||"{}");}
-function saveUsers(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
+function loadUsers(){
+  try{
+    return JSON.parse(localStorage.getItem(USER_KEY)||"{}");
+  }catch(e){
+    console.error("ユーザー読み込み失敗",e);
+    return {};
+  }
+}
+function saveUsers(u){
+  try{
+    localStorage.setItem(USER_KEY,JSON.stringify(u));
+  }catch(e){
+    console.error("ユーザー保存失敗",e);
+  }
+}
 
 /* =========================
    データ管理
 ========================= */
 function loadData(){
   if(!currentUser) return [];
-  const raw=localStorage.getItem(DATA_KEY+currentUser);
-  return raw?JSON.parse(dec(raw)):[];
+  try{
+    const raw=localStorage.getItem(DATA_KEY+currentUser);
+    if(!raw) return [];
+    const json=dec(raw);
+    const arr=JSON.parse(json);
+    if(!Array.isArray(arr)) return [];
+    return arr;
+  }catch(e){
+    console.error("データ読み込み失敗",e);
+    return [];
+  }
 }
 function saveData(arr){
   if(!currentUser) return;
-  localStorage.setItem(DATA_KEY+currentUser,enc(JSON.stringify(arr)));
+  try{
+    const json=JSON.stringify(arr);
+    localStorage.setItem(DATA_KEY+currentUser,enc(json));
+  }catch(e){
+    console.error("データ保存失敗",e);
+  }
 }
 
 /* =========================
@@ -344,128 +415,30 @@ function saveData(arr){
 ========================= */
 function loadCats(){
   if(!currentUser) return [];
-  const raw=localStorage.getItem(CAT_KEY+currentUser);
-  if(raw) return JSON.parse(raw);
-
+  try{
+    const raw=localStorage.getItem(CAT_KEY+currentUser);
+    if(raw){
+      const arr=JSON.parse(raw);
+      if(Array.isArray(arr)&&arr.length>0) return arr;
+    }
+  }catch(e){
+    console.error("カテゴリ読み込み失敗",e);
+  }
   const def=["食費","日用品","交通費","趣味","交際費","固定費","バイト代","その他"];
-  localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(def));
+  try{
+    localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(def));
+  }catch(e){
+    console.error("カテゴリ初期化失敗",e);
+  }
   return def;
 }
 function saveCats(arr){
   if(!currentUser) return;
-  localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(arr));
-}
-
-/* =========================
-   入力欄リセット
-========================= */
-function clearInputs(){
-  document.querySelectorAll("#main input, #main textarea, #main select").forEach(e=>{
-    e.value="";
-  });
-}
-
-/* =========================
-   ページ切替
-========================= */
-function showPage(name){
-  document.querySelectorAll("#main > div").forEach(p=>p.style.display="none");
-  const page=document.getElementById("page-"+name);
-  if(page) page.style.display="block";
-
-  clearInputs();
-
-  if(name==="category") renderCategoryPage();
-  if(name==="list") renderList();
-  if(name==="month") renderMonthPage();
-  if(name==="year") renderYearPage();
-  if(name==="stats") renderStatsPage();
-  if(name==="report") renderReportPage();
-
-  renderSummary();
-}
-
-/* =========================
-   ログイン
-========================= */
-loginBtn.onclick=async()=>{
-  const u=loginUser.value.trim();
-  const p=loginPass.value;
-  const users=loadUsers();
-
-  if(!u){loginMsg.textContent="IDを入力";return;}
-  if(!users[u]){loginMsg.textContent="存在しません";return;}
-  if(users[u].pass!==await sha256(p)){loginMsg.textContent="パスワードが違います";return;}
-
-  currentUser=u;
-
-  /* ログイン成功 → メイン画面表示 */
-  loginScreen.style.display="none";
-  sidebar.style.display="flex";
-  main.style.display="block";
-
-  showPage("dashboard");
-  resetAutoLogout();
-};
-
-/* =========================
-   新規登録
-========================= */
-regBtn.onclick=async()=>{
-  const u=regUser.value.trim();
-  const p1=regPass1.value;
-  const p2=regPass2.value;
-  const qt=questionType.value;
-  const qa=questionA.value;
-  const qb=questionB.value.trim();
-  const ans=answer.value.trim();
-
-  if(!u){regMsg.textContent="IDを入力";return;}
-  if(p1.length<12||!/[A-Z]/.test(p1)||!/[a-z]/.test(p1)||!/[0-9]/.test(p1)){
-    regMsg.textContent="パスワード条件不足";return;
+  try{
+    localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(arr));
+  }catch(e){
+    console.error("カテゴリ保存失敗",e);
   }
-  if(p1!==p2){regMsg.textContent="一致しません";return;}
-  if(!qt){regMsg.textContent="質問方式を選択";return;}
-  if(qt==="A"&&!qa){regMsg.textContent="質問を選択";return;}
-  if(qt==="B"&&!qb){regMsg.textContent="質問を入力";return;}
-  if(!ans){regMsg.textContent="答えを入力";return;}
-
-  const users=loadUsers();
-  if(users[u]){regMsg.textContent="既に存在します";return;}
-
-  users[u]={
-    pass:await sha256(p1),
-    qType:qt,
-    question:qt==="A"?qa:qb,
-    answer:await sha256(ans)
-  };
-  saveUsers(users);
-
-  regMsg.style.color="#4ade80";
-  regMsg.textContent="登録完了";
-
-  setTimeout(()=>{
-    regScreen.style.display="none";
-    loginScreen.style.display="flex";
-  },800);
-};
-
-/* =========================
-   カテゴリ管理
-========================= */
-function renderCategoryPage(){
-  const cats=loadCats();
-  categoryBody.innerHTML="";
-  cats.forEach((c,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${c}</td>
-      <td><button onclick="deleteCategory(${i})">削除</button></td>
-    `;
-    categoryBody.appendChild(tr);
-  });
-  renderCategorySelect();
 }
 
 function renderCategorySelect(){
@@ -479,11 +452,26 @@ function renderCategorySelect(){
   });
 }
 
+function renderCategoryPage(){
+  const cats=loadCats();
+  categoryBody.innerHTML="";
+  cats.forEach((c,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td>${safeText(c)}</td>
+      <td><button onclick="deleteCategory(${i})">削除</button></td>
+    `;
+    categoryBody.appendChild(tr);
+  });
+  renderCategorySelect();
+}
+
 addCategoryBtn.onclick=()=>{
   const name=newCategoryName.value.trim();
-  if(!name) return;
+  if(!name){return;}
   const cats=loadCats();
-  if(cats.includes(name)){alert("既に存在");return;}
+  if(cats.includes(name)){alert("既に存在します");return;}
   cats.push(name);
   saveCats(cats);
   newCategoryName.value="";
@@ -498,28 +486,6 @@ function deleteCategory(i){
 }
 
 /* =========================
-   取引登録
-========================= */
-addBtn.onclick=()=>{
-  const d=date.value;
-  const t=type.value;
-  const cat=categorySelect.value;
-  const it=item.value.trim();
-  const am=parseFloat(amount.value);
-  const no=note.value.trim();
-
-  if(!d||!it||isNaN(am)){alert("未入力があります");return;}
-
-  const arr=loadData();
-  arr.push({date:d,type:t,item:it,amount:am,category:cat,note:no});
-  saveData(arr);
-
-  clearInputs();
-  renderList();
-  renderSummary();
-};
-
-/* =========================
    一覧
 ========================= */
 function renderList(){
@@ -527,17 +493,17 @@ function renderList(){
   listBody.innerHTML="";
   arr.forEach((e,i)=>{
     const typeLabel=e.type==="income"
-      ? `<span style='color:var(--income)'>収入</span>`
-      : `<span style='color:var(--expense)'>支出</span>`;
+      ? `<span class="badge badge-income">収入</span>`
+      : `<span class="badge badge-expense">支出</span>`;
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${i+1}</td>
-      <td>${e.date}</td>
+      <td>${safeText(e.date)}</td>
       <td>${typeLabel}</td>
-      <td>${e.item}</td>
+      <td>${safeText(e.item)}</td>
       <td>${e.amount}</td>
-      <td>${e.category}</td>
-      <td>${e.note}</td>
+      <td>${safeText(e.category)}</td>
+      <td>${safeText(e.note||"")}</td>
       <td><button onclick="delEntry(${i})">削除</button></td>
     `;
     listBody.appendChild(tr);
@@ -552,513 +518,313 @@ function delEntry(i){
   renderSummary();
 }
 /* =========================
-   ダッシュボード集計
+   取引登録
+========================= */
+addBtn.onclick=()=>{
+  addMsg.textContent="";
+  const d=date.value;
+  const t=type.value;
+  const cat=categorySelect.value;
+  const it=item.value.trim();
+  const am=parseFloat(amount.value);
+  const no=note.value.trim();
+
+  if(!d||!it||isNaN(am)||am<0){
+    addMsg.textContent="日付・品目・金額を確認してください";
+    return;
+  }
+
+  const arr=loadData();
+  arr.push({date:d,type:t,item:it,amount:am,category:cat,note:no});
+  saveData(arr);
+
+  item.value="";
+  amount.value="";
+  note.value="";
+  renderList();
+  renderSummary();
+};
+
+/* =========================
+   ダッシュボード
 ========================= */
 function renderSummary(){
   const arr=loadData();
-  let total=0;
+  let income=0,expense=0;
+  const byMonth={};
   arr.forEach(e=>{
-    total+=(e.type==="income"?e.amount:-e.amount);
-  });
-  dashTotal.textContent=total.toLocaleString()+" 円";
-}
-
-/* =========================
-   月次集計
-========================= */
-function renderMonthPage(){
-  monthSelect.innerHTML="";
-  for(let m=1;m<=12;m++){
-    const op=document.createElement("option");
-    op.value=m;
-    op.textContent=m+"月";
-    monthSelect.appendChild(op);
-  }
-  monthSelect.onchange=renderMonthData;
-  renderMonthData();
-}
-
-function renderMonthData(){
-  const arr=loadData();
-  const m=parseInt(monthSelect.value);
-  const filtered=arr.filter(e=>{
-    if(!e.date) return false;
-    return parseInt(e.date.split("-")[1])===m;
-  });
-
-  monthBody.innerHTML="";
-  let income=0,expense=0;
-
-  filtered.forEach((e,i)=>{
     if(e.type==="income") income+=e.amount;
     else expense+=e.amount;
 
-    const typeLabel=e.type==="income"
-      ? `<span style='color:var(--income)'>収入</span>`
-      : `<span style='color:var(--expense)'>支出</span>`;
-
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${e.date}</td>
-      <td>${typeLabel}</td>
-      <td>${e.item}</td>
-      <td>${e.amount}</td>
-      <td>${e.category}</td>
-      <td>${e.note}</td>
-    `;
-    monthBody.appendChild(tr);
+    const m=(e.date||"").slice(0,7);
+    if(!m) return;
+    if(!byMonth[m]) byMonth[m]={income:0,expense:0};
+    if(e.type==="income") byMonth[m].income+=e.amount;
+    else byMonth[m].expense+=e.amount;
   });
+  const balance=income-expense;
+  dashSummary.textContent=`収入 ${income.toLocaleString()} 円 / 支出 ${expense.toLocaleString()} 円 / 残高 ${balance.toLocaleString()} 円`;
 
-  const bal=income-expense;
-  monthTotal.textContent=`${m}月 収入 ${income.toLocaleString()} 円 / 支出 ${expense.toLocaleString()} 円 / 差引 ${bal.toLocaleString()} 円`;
-}
+  const labels=Object.keys(byMonth).sort();
+  const incomeData=labels.map(m=>byMonth[m].income);
+  const expenseData=labels.map(m=>byMonth[m].expense);
 
-/* =========================
-   年次集計
-========================= */
-function renderYearPage(){
-  const arr=loadData();
-  yearSelect.innerHTML="";
-  const years=[...new Set(arr.filter(e=>e.date).map(e=>parseInt(e.date.split("-")[0])))]
-    .sort((a,b)=>a-b);
-
-  years.forEach(y=>{
-    const op=document.createElement("option");
-    op.value=y;
-    op.textContent=y+"年";
-    yearSelect.appendChild(op);
-  });
-
-  yearSelect.onchange=renderYearData;
-  renderYearData();
-}
-
-function renderYearData(){
-  const arr=loadData();
-  const y=parseInt(yearSelect.value);
-  const filtered=arr.filter(e=>{
-    if(!e.date) return false;
-    return parseInt(e.date.split("-")[0])===y;
-  });
-
-  yearBody.innerHTML="";
-  let income=0,expense=0;
-
-  filtered.forEach((e,i)=>{
-    if(e.type==="income") income+=e.amount;
-    else expense+=e.amount;
-
-    const typeLabel=e.type==="income"
-      ? `<span style='color:var(--income)'>収入</span>`
-      : `<span style='color:var(--expense)'>支出</span>`;
-
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${e.date}</td>
-      <td>${typeLabel}</td>
-      <td>${e.item}</td>
-      <td>${e.amount}</td>
-      <td>${e.category}</td>
-      <td>${e.note}</td>
-    `;
-    yearBody.appendChild(tr);
-  });
-
-  const bal=income-expense;
-  yearTotal.textContent=`${y}年 収入 ${income.toLocaleString()} 円 / 支出 ${expense.toLocaleString()} 円 / 差引 ${bal.toLocaleString()} 円`;
-}
-
-/* =========================
-   統計グラフ
-========================= */
-function renderStatsPage(){
-  statsMode.onchange=()=>{
-    buildStatsSelect();
-    renderStatsGraph();
-  };
-  statsSelect.onchange=renderStatsGraph;
-  buildStatsSelect();
-  renderStatsGraph();
-}
-
-function buildStatsSelect(){
-  const mode=statsMode.value;
-  statsSelect.innerHTML="";
-  const arr=loadData();
-
-  if(mode==="month"){
-    for(let m=1;m<=12;m++){
-      const op=document.createElement("option");
-      op.value=m;
-      op.textContent=m+"月";
-      statsSelect.appendChild(op);
-    }
-  }else{
-    const years=[...new Set(arr.filter(e=>e.date).map(e=>parseInt(e.date.split("-")[0])))]
-      .sort((a,b)=>a-b);
-    years.forEach(y=>{
-      const op=document.createElement("option");
-      op.value=y;
-      op.textContent=y+"年";
-      statsSelect.appendChild(op);
-    });
-  }
-}
-
-function renderStatsGraph(){
-  const mode=statsMode.value;
-  const val=parseInt(statsSelect.value);
-  const arr=loadData();
-
-  let filtered=[];
-  if(mode==="month"){
-    filtered=arr.filter(e=>{
-      if(!e.date) return false;
-      return parseInt(e.date.split("-")[1])===val;
-    });
-  }else{
-    filtered=arr.filter(e=>{
-      if(!e.date) return false;
-      return parseInt(e.date.split("-")[0])===val;
-    });
-  }
-
-  const catIncome={},catExpense={};
-  filtered.forEach(e=>{
-    const c=e.category||"その他";
-    if(e.type==="income") catIncome[c]=(catIncome[c]||0)+e.amount;
-    else catExpense[c]=(catExpense[c]||0)+e.amount;
-  });
-
-  const labels=[...new Set([...Object.keys(catIncome),...Object.keys(catExpense)])];
-  const incomeData=labels.map(l=>catIncome[l]||0);
-  const expenseData=labels.map(l=>catExpense[l]||0);
-
-  if(window.statsPieObj) window.statsPieObj.destroy();
-  if(window.statsBarObj) window.statsBarObj.destroy();
-
-  window.statsPieObj=new Chart(statsPie.getContext("2d"),{
-    type:"pie",
-    data:{
-      labels:labels,
-      datasets:[{
-        data:expenseData,
-        backgroundColor:"rgba(248,113,113,0.7)"
-      }]
-    }
-  });
-
-  window.statsBarObj=new Chart(statsBar.getContext("2d"),{
+  if(monthChart){monthChart.destroy();}
+  const ctx=document.getElementById("monthChart").getContext("2d");
+  monthChart=new Chart(ctx,{
     type:"bar",
     data:{
-      labels:labels,
+      labels,
       datasets:[
-        {label:"収入",data:incomeData,backgroundColor:"rgba(74,222,128,0.7)"},
+        {label:"収入",data:incomeData,backgroundColor:"rgba(74,222,128,0.6)"},
         {label:"支出",data:expenseData,backgroundColor:"rgba(248,113,113,0.7)"}
       ]
     },
-    options:{scales:{y:{beginAtZero:true}}}
-  });
-}
-
-/* =========================
-   月次レポート
-========================= */
-function renderReportPage(){
-  reportMonthSelect.innerHTML="";
-  for(let m=1;m<=12;m++){
-    const op=document.createElement("option");
-    op.value=m;
-    op.textContent=m+"月";
-    reportMonthSelect.appendChild(op);
-  }
-  reportMonthSelect.onchange=renderReportData;
-  renderReportData();
-}
-
-function renderReportData(){
-  const arr=loadData();
-  const m=parseInt(reportMonthSelect.value);
-  const now=new Date();
-  const ym=`-${String(m).padStart(2,"0")}-`;
-
-  const filtered=arr.filter(e=>e.date&&e.date.includes(ym));
-
-  let income=0,expense=0;
-  const catMap={};
-
-  filtered.forEach(e=>{
-    const c=e.category||"その他";
-    if(!catMap[c]) catMap[c]={income:0,expense:0,count:0};
-    if(e.type==="income"){
-      income+=e.amount;
-      catMap[c].income+=e.amount;
-    }else{
-      expense+=e.amount;
-      catMap[c].expense+=e.amount;
-    }
-    catMap[c].count++;
-  });
-
-  const bal=income-expense;
-
-  reportTitle.textContent=`${now.getFullYear()}年 ${m}月 レポート`;
-  reportMeta.textContent=`${now.getFullYear()}-${m} の集計`;
-  reportIncome.textContent=income.toLocaleString()+" 円";
-  reportExpense.textContent=expense.toLocaleString()+" 円";
-  reportBalance.textContent=bal.toLocaleString()+" 円";
-  reportCount.textContent=filtered.length+" 件";
-
-  reportCategoryBody.innerHTML="";
-  Object.keys(catMap).forEach(c=>{
-    const r=catMap[c];
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${c}</td>
-      <td>${r.income.toLocaleString()}</td>
-      <td>${r.expense.toLocaleString()}</td>
-      <td>${r.count}</td>
-    `;
-    reportCategoryBody.appendChild(tr);
-  });
-}
-
-/* =========================
-   ZIPバックアップ
-========================= */
-async function backup(){
-  const arr=loadData();
-  const json=JSON.stringify(arr);
-  const pw=prompt("ZIPパスワード（任意）");
-  if(pw===null) return;
-
-  const pwBytes=new TextEncoder().encode(pw);
-  const dataBytes=new TextEncoder().encode(json);
-  const encrypted=dataBytes.map((b,i)=>b^pwBytes[i%pwBytes.length]);
-
-  const header=new Uint8Array([
-    0x50,0x4B,0x03,0x04,0x14,0x00,0x00,0x00,
-    0x00,0x00,0xB7,0xAC,0xCE,0x34,0x00,0x00,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x08,0x00,
-    0x00,0x00,0x62,0x61,0x63,0x6B,0x75,0x70,
-    0x2E,0x6A,0x73,0x6F,0x6E
-  ]);
-
-  const combined=new Uint8Array(header.length+encrypted.length);
-  combined.set(header,0);
-  combined.set(encrypted,header.length);
-
-  const blob=new Blob([combined],{type:"application/zip"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="backup.zip";
-  a.click();
-}
-
-/* =========================
-   ZIP復元
-========================= */
-function restoreZip(){zipRestore.click();}
-
-zipRestore.onchange=()=>{
-  const file=zipRestore.files[0];
-  if(!file) return;
-
-  const pw=prompt("ZIPパスワード");
-  if(pw===null) return;
-
-  const reader=new FileReader();
-  reader.onload=()=>{
-    const bytes=new Uint8Array(reader.result);
-
-    let start=0;
-    for(let i=0;i<bytes.length-10;i++){
-      if(bytes[i]===0x62&&bytes[i+1]===0x61&&bytes[i+2]===0x63){
-        start=i;
-        break;
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:"#e2e8f0"}}},
+      scales:{
+        x:{ticks:{color:"#e2e8f0"},grid:{color:"rgba(30,64,175,0.4)"}},
+        y:{ticks:{color:"#e2e8f0"},grid:{color:"rgba(30,64,175,0.4)"}}
       }
     }
+  });
+}
 
-    const encrypted=bytes.slice(start);
-    const pwBytes=new TextEncoder().encode(pw);
-    const decrypted=encrypted.map((b,i)=>b^pwBytes[i%pwBytes.length]);
-    const json=new TextDecoder().decode(decrypted);
+/* =========================
+   ページ切替
+========================= */
+function showPage(name){
+  document.querySelectorAll("#main > .card").forEach(p=>p.style.display="none");
+  const page=document.getElementById("page-"+name);
+  if(page) page.style.display="block";
 
-    try{
-      const arr=JSON.parse(json);
-      saveData(arr);
-      alert("復元完了");
-      renderSummary();
-      renderList();
-    }catch(e){
-      alert("パスワードが違うか破損しています");
-    }
-  };
-  reader.readAsArrayBuffer(file);
+  document.querySelectorAll("#sidebar .menu-btn").forEach(btn=>{
+    if(btn.dataset.page===name) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+
+  if(name==="category") renderCategoryPage();
+  if(name==="list") renderList();
+  if(name==="dashboard") renderSummary();
+}
+
+/* =========================
+   自動ログアウト（30分）
+========================= */
+function resetAutoLogout(){
+  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  autoLogoutTimer=setTimeout(()=>{
+    currentUser=null;
+    sidebar.style.display="none";
+    main.style.display="none";
+    loginScreen.style.display="flex";
+    loginUser.value="";
+    loginPass.value="";
+    alert("30分操作がなかったためログアウトしました。");
+  },30*60*1000);
+}
+
+["click","mousemove","keydown","scroll"].forEach(ev=>{
+  document.addEventListener(ev,()=>{if(currentUser) resetAutoLogout();},{passive:true});
+});
+/* =========================
+   ログイン
+========================= */
+loginBtn.onclick=async()=>{
+  loginMsg.textContent="";
+  const u=loginUser.value.trim();
+  const p=loginPass.value;
+  const users=loadUsers();
+
+  if(!u){loginMsg.textContent="IDを入力してください";return;}
+  if(!users[u]){loginMsg.textContent="ユーザーが存在しません";return;}
+  if(users[u].pass!==await sha256(p)){
+    loginMsg.textContent="パスワードが違います";
+    return;
+  }
+
+  currentUser=u;
+  loginScreen.style.display="none";
+  regScreen.style.display="none";
+  resetScreen.style.display="none";
+  resetQuestionScreen.style.display="none";
+  resetNewPassScreen.style.display="none";
+
+  sidebar.style.display="flex";
+  main.style.display="block";
+
+  renderCategoryPage();
+  renderList();
+  renderSummary();
+  showPage("dashboard");
+  resetAutoLogout();
 };
+
+/* =========================
+   新規登録（秘密の質問表示）
+========================= */
+questionType.onchange=()=>{
+  if(questionType.value==="A"){
+    questionA.style.display="block";
+    questionB.style.display="none";
+  }else if(questionType.value==="B"){
+    questionA.style.display="none";
+    questionB.style.display="block";
+  }else{
+    questionA.style.display="none";
+    questionB.style.display="none";
+  }
+};
+
+regBtn.onclick=async()=>{
+  regMsg.style.color="var(--danger)";
+  regMsg.textContent="";
+  const u=regUser.value.trim();
+  const p1=regPass1.value;
+  const p2=regPass2.value;
+  const qt=questionType.value;
+  const qa=questionA.value;
+  const qb=questionB.value.trim();
+  const ans=answer.value.trim();
+
+  if(!u){regMsg.textContent="IDを入力してください";return;}
+  if(p1.length<12||!/[A-Z]/.test(p1)||!/[a-z]/.test(p1)||!/[0-9]/.test(p1)){
+    regMsg.textContent="パスワード条件を満たしていません";return;
+  }
+  if(p1!==p2){regMsg.textContent="パスワードが一致しません";return;}
+  if(!qt){regMsg.textContent="質問方式を選択してください";return;}
+  if(qt==="A"&&!qa){regMsg.textContent="質問を選択してください";return;}
+  if(qt==="B"&&!qb){regMsg.textContent="質問を入力してください";return;}
+  if(!ans){regMsg.textContent="答えを入力してください";return;}
+
+  const users=loadUsers();
+  if(users[u]){regMsg.textContent="このIDは既に使われています";return;}
+
+  users[u]={
+    pass:await sha256(p1),
+    qType:qt,
+    question:qt==="A"?qa:qb,
+    answer:await sha256(ans)
+  };
+  saveUsers(users);
+
+  regMsg.style.color="var(--income)";
+  regMsg.textContent="登録完了しました";
+
+  setTimeout(()=>{
+    regScreen.style.display="none";
+    loginScreen.style.display="flex";
+  },900);
+};
+
 /* =========================
    パスワード再設定
 ========================= */
-forgotLink.onclick=()=>{
+toResetBtn.onclick=()=>{
   loginScreen.style.display="none";
   resetScreen.style.display="flex";
 };
+backToLoginFromReset.onclick=()=>{
+  resetScreen.style.display="none";
+  loginScreen.style.display="flex";
+};
 
 resetNext.onclick=()=>{
-  const id=resetEmail.value.trim();
+  const id=resetId.value.trim();
   const users=loadUsers();
-  if(!id){resetMsg.textContent="IDを入力";return;}
-  if(!users[id]){resetMsg.textContent="存在しません";return;}
-
+  if(!id){resetMsg.textContent="IDを入力してください";return;}
+  if(!users[id]){resetMsg.textContent="ユーザーが存在しません";return;}
   resetMsg.textContent="";
   resetScreen.style.display="none";
   resetQuestion.textContent=users[id].question;
-  resetQuestionScreen.style.display="flex";
   resetQuestionScreen.dataset.user=id;
+  resetQuestionScreen.style.display="flex";
 };
 
 resetAnswerBtn.onclick=async()=>{
   const id=resetQuestionScreen.dataset.user;
   const users=loadUsers();
   const ans=resetAnswer.value.trim();
-
-  if(!ans){resetAnswerMsg.textContent="答えを入力";return;}
+  if(!ans){resetAnswerMsg.textContent="答えを入力してください";return;}
   if(users[id].answer!==await sha256(ans)){
-    resetAnswerMsg.textContent="違います";
+    resetAnswerMsg.textContent="答えが違います";
     return;
   }
-
   resetAnswerMsg.textContent="";
   resetQuestionScreen.style.display="none";
-  resetNewPassScreen.style.display="flex";
   resetNewPassScreen.dataset.user=id;
+  resetNewPassScreen.style.display="flex";
 };
 
 resetPassBtn.onclick=async()=>{
   const id=resetNewPassScreen.dataset.user;
   const p1=newPass1.value;
   const p2=newPass2.value;
-
   if(p1.length<12||!/[A-Z]/.test(p1)||!/[a-z]/.test(p1)||!/[0-9]/.test(p1)){
-    resetPassMsg.textContent="条件不足";
-    return;
+    resetPassMsg.textContent="パスワード条件を満たしていません";return;
   }
-  if(p1!==p2){
-    resetPassMsg.textContent="一致しません";
-    return;
-  }
+  if(p1!==p2){resetPassMsg.textContent="一致しません";return;}
 
   const users=loadUsers();
   users[id].pass=await sha256(p1);
   saveUsers(users);
 
-  resetPassMsg.style.color="#4ade80";
-  resetPassMsg.textContent="変更完了";
+  resetPassMsg.style.color="var(--income)";
+  resetPassMsg.textContent="変更しました";
 
   setTimeout(()=>{
     resetNewPassScreen.style.display="none";
     loginScreen.style.display="flex";
-  },800);
+  },900);
 };
 
 /* =========================
-   自動ログアウト（30分）
+   画面遷移ボタン
 ========================= */
-let logoutTimer;
-function resetAutoLogout(){
-  clearTimeout(logoutTimer);
-  logoutTimer=setTimeout(()=>{
-    currentUser=null;
-
-    /* メイン画面を隠す */
-    sidebar.style.display="none";
-    main.style.display="none";
-
-    /* ログイン画面を表示 */
-    clearLoginFields();
-    loginScreen.style.display="flex";
-  },30*60*1000);
-}
-
-document.addEventListener("mousemove",resetAutoLogout);
-document.addEventListener("keydown",resetAutoLogout);
-document.addEventListener("click",resetAutoLogout);
-document.addEventListener("scroll",resetAutoLogout);
+document.querySelectorAll("#sidebar .menu-btn[data-page]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const page=btn.dataset.page;
+    showPage(page);
+  });
+});
 
 /* =========================
-   ログアウト（100%動作版）
+   ログアウト
 ========================= */
 logoutBtn.onclick=()=>{
   currentUser=null;
-
-  /* メイン画面を完全に隠す */
   sidebar.style.display="none";
   main.style.display="none";
+  loginScreen.style.display="flex";
+  loginUser.value="";
+  loginPass.value="";
+  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
+};
 
-  /* ログイン画面だけ表示 */
-  clearLoginFields();
+/* =========================
+   画面遷移ボタン（ログイン⇔登録）
+========================= */
+toRegBtn.onclick=()=>{
+  loginScreen.style.display="none";
+  regScreen.style.display="flex";
+};
+backToLoginFromReg.onclick=()=>{
+  regScreen.style.display="none";
   loginScreen.style.display="flex";
 };
 
 /* =========================
-   入力補助（ヒント）
-========================= */
-function showHint(t){
-  hintBox.textContent=t;
-  hintBox.style.display="block";
-}
-function hideHint(){hintBox.style.display="none";}
-
-date.onfocus=()=>showHint("日付を入力");
-item.onfocus=()=>showHint("品目を入力");
-amount.onfocus=()=>showHint("金額を入力");
-note.onfocus=()=>showHint("メモを入力");
-
-date.onblur=item.onblur=amount.onblur=note.onblur=hideHint;
-
-/* =========================
-   入力補完
-========================= */
-const itemSuggestions=["コーヒー","紅茶","パン","昼食","夕食","マジック道具","交通費","書籍","文房具","飲み物"];
-item.addEventListener("input",()=>{
-  const v=item.value.toLowerCase();
-  const hit=itemSuggestions.find(s=>s.toLowerCase().startsWith(v));
-  if(hit) item.value=hit;
-});
-
-/* =========================
-   ログイン画面の入力クリア
-========================= */
-function clearLoginFields(){
-  loginUser.value="";
-  loginPass.value="";
-  regUser.value="";
-  regPass1.value="";
-  regPass2.value="";
-  questionType.value="";
-  questionA.style.display="none";
-  questionB.style.display="none";
-  loginMsg.textContent="";
-  regMsg.textContent="";
-}
-
-/* =========================
-   初期表示（ログイン画面のみ）
+   初期表示
 ========================= */
 window.addEventListener("load",()=>{
   currentUser=null;
-
-  /* メイン画面は絶対に表示しない */
   sidebar.style.display="none";
   main.style.display="none";
-
-  /* ログイン画面だけ表示 */
   loginScreen.style.display="flex";
 });
 </script>
 
-</div>
 </body>
 </html>
+
