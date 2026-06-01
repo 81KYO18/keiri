@@ -1,146 +1,357 @@
-<!-- Part1 -->
+<!-- Part1/5 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>極密アプリ Ultimate Secure</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root{--bg:#020617;--panel:#0f172a;--border:#1f2937;--accent:#38bdf8;--text:#e5e7eb;--sub:#9ca3af;--income:#4ade80;--expense:#f97373}
+    :root{
+      --bg:#020617;--panel:#0f172a;--border:#1f2937;--accent:#38bdf8;
+      --accent-soft:rgba(56,189,248,0.12);--danger:#f97373;--text:#e5e7eb;
+      --sub:#9ca3af;--income:#4ade80;--expense:#f97373;--radius:12px;
+    }
     *{box-sizing:border-box}
-    body{margin:0;padding:16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#0f172a 0,#020617 55%,#000 100%);color:var(--text)}
-    h1{margin:8px 0 16px;font-size:20px;letter-spacing:.08em}
-    .wrap{max-width:1100px;margin:0 auto}
+    html,body{height:100%}
+    body{
+      margin:0;padding:20px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      background:radial-gradient(circle at top,#0f172a 0,#020617 55%,#000 100%);color:var(--text);
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:1200px;margin:0 auto}
+    .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .title{font-size:20px;letter-spacing:.06em}
+    .panel{
+      background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(15,23,42,.9));
+      border:1px solid rgba(148,163,184,.12);border-radius:var(--radius);padding:14px;
+      box-shadow:0 18px 40px rgba(2,6,23,.6);backdrop-filter:blur(6px);
+    }
     .auth-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-    .panel{background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(15,23,42,.9));border:1px solid rgba(148,163,184,.35);border-radius:10px;padding:12px;box-shadow:0 18px 40px rgba(15,23,42,.9);backdrop-filter:blur(10px)}
-    .panel-title{font-size:13px;margin-bottom:8px;color:var(--sub);letter-spacing:.08em}
-    .auth-panel{flex:1 1 260px}
-    .auth-panel input{width:100%;margin-bottom:6px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#020617;color:var(--text);font-size:13px}
-    .auth-panel button{width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(148,163,184,.6);background:#020617;color:var(--text);font-size:13px;cursor:pointer}
-    .auth-msg{margin-top:4px;font-size:12px;color:#f97373;min-height:16px}
-    .app-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,.9fr);gap:12px}
-    @media(max-width:960px){.app-grid{grid-template-columns:minmax(0,1fr)}}
-    .field-row{display:flex;gap:6px;margin-bottom:6px}
-    .field-row input,.field-row select{flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#020617;color:var(--text);font-size:13px}
-    .btn-main{padding:6px 10px;border-radius:6px;border:1px solid var(--accent);background:rgba(56,189,248,.15);color:var(--text);cursor:pointer}
-    .btn-sub{padding:5px 8px;border-radius:6px;border:1px solid rgba(148,163,184,.6);background:#020617;color:var(--sub);cursor:pointer}
-    .list{max-height:420px;overflow-y:auto;font-size:12px}
-    .list-item{display:grid;grid-template-columns:70px 1fr 80px 70px 60px;gap:4px;padding:4px 6px;border-bottom:1px solid rgba(31,41,55,.9);align-items:center}
-    .list-item:nth-child(2n){background:rgba(15,23,42,.7)}
-    .list-item-amount.income{color:var(--income)}
-    .list-item-amount.expense{color:var(--expense)}
-    .summary-row{display:flex;flex-direction:column;gap:4px;font-size:12px}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;border:1px solid rgba(148,163,184,.5);font-size:11px;color:var(--sub)}
-    .badge-dot{width:6px;height:6px;border-radius:999px;background:var(--accent)}
-    .logout-row{display:flex;justify-content:flex-end;margin-bottom:8px}
+    .auth-panel{flex:1 1 360px}
+    .panel-title{font-size:13px;margin-bottom:8px;color:var(--sub);letter-spacing:.06em}
+    input,select,button,textarea{font-size:14px}
+    input,select,textarea{
+      width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+      background:#020617;color:var(--text);
+    }
+    .btn-main{padding:10px 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--text);cursor:pointer}
+    .btn-sub{padding:8px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.18);background:#020617;color:var(--sub);cursor:pointer}
+    .auth-msg{margin-top:8px;font-size:13px;color:var(--danger);min-height:20px}
+    .muted{font-size:12px;color:var(--sub);margin-top:6px}
+    .link{color:var(--accent);text-decoration:underline;cursor:pointer}
     .hidden{display:none!important}
+    .center{display:flex;align-items:center;justify-content:center}
+    .small{font-size:12px;color:var(--sub)}
+    .form-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   </style>
 </head>
-<!-- Part2 -->
 <body>
   <div class="wrap">
-    <h1>極密アプリ Ultimate Secure</h1>
+    <div class="header">
+      <div class="title">極密アプリ Ultimate Secure</div>
+      <div class="small">安全に管理する家計簿</div>
+    </div>
 
-    <div class="auth-row">
-      <div class="panel auth-panel">
-        <div class="panel-title">新規登録</div>
-        <input id="signupEmail" type="email" placeholder="新規登録メールアドレス" autocomplete="email">
-        <input id="signupPassword" type="password" placeholder="新規登録パスワード（12文字以上推奨）" autocomplete="new-password">
-        <input id="signupPasswordConfirm" type="password" placeholder="パスワード確認" autocomplete="new-password">
-        <button id="signupBtn" onclick="signup()">新規登録</button>
+    <div class="auth-row" id="authRow">
+      <div class="panel auth-panel" id="signupPanel" aria-labelledby="signupTitle">
+        <div class="panel-title" id="signupTitle">新規登録</div>
+        <label class="sr-only" for="signupEmail">メールアドレス</label>
+        <input id="signupEmail" type="email" placeholder="メールアドレス" autocomplete="email" />
+        <label class="sr-only" for="signupPassword">パスワード</label>
+        <input id="signupPassword" type="password" placeholder="パスワード（12文字以上推奨）" autocomplete="new-password" />
+        <label class="sr-only" for="signupPasswordConfirm">パスワード確認</label>
+        <input id="signupPasswordConfirm" type="password" placeholder="パスワード確認" autocomplete="new-password" />
+        <div class="form-row">
+          <button id="signupBtn" class="btn-main" type="button">新規登録</button>
+          <button id="signupClear" class="btn-sub" type="button">クリア</button>
+        </div>
         <div id="signupMsg" class="auth-msg" aria-live="polite"></div>
+        <div class="muted">パスワードは長さを重視してください。パスワードマネージャ推奨。</div>
       </div>
 
-      <div class="panel auth-panel">
-        <div class="panel-title">ログイン</div>
-        <input id="loginEmail" type="email" placeholder="メールアドレス" autocomplete="email">
-        <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password">
-        <button id="loginBtn" onclick="login()">ログイン</button>
+      <div class="panel auth-panel" id="loginPanel" aria-labelledby="loginTitle">
+        <div class="panel-title" id="loginTitle">ログイン</div>
+        <label class="sr-only" for="loginEmail">メールアドレス</label>
+        <input id="loginEmail" type="email" placeholder="メールアドレス" autocomplete="email" />
+        <label class="sr-only" for="loginPassword">パスワード</label>
+        <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password" />
+        <div class="form-row">
+          <button id="loginBtn" class="btn-main" type="button">ログイン</button>
+          <button id="loginClear" class="btn-sub" type="button">クリア</button>
+        </div>
         <div id="loginMsg" class="auth-msg" aria-live="polite"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <a id="forgotLink" class="link" href="#" role="link">IDまたはパスワードを忘れた方はこちら</a>
+          <a id="helpLink" class="small" href="#" role="link">ヘルプ</a>
+        </div>
+
+        <div id="loginHints" class="muted" style="margin-top:8px">
+          <div id="hintWrongField" class="hidden">入力欄を確認してください。</div>
+          <div id="hintCheckEmail" class="hidden">メールアドレスが正しいか確認してください。</div>
+          <div id="hintCheckPassword" class="hidden">パスワードが正しいか確認してください。</div>
+          <div id="hintConfirmEmail" class="hidden">登録後に確認メールが必要です。メールを確認してください。</div>
+        </div>
       </div>
     </div>
 
-    <div id="appArea" class="hidden" aria-hidden="true">
-      <div class="logout-row">
-        <span class="badge" id="loginUserLabel" role="status" aria-live="polite">
-          <span class="badge-dot" aria-hidden="true"></span>
-          <span id="loginUserEmail">ログイン中</span>
-        </span>
-        <button id="logoutBtn" class="btn-sub" style="margin-left:8px;" onclick="logout()">ログアウト</button>
-      </div>
+    <div id="appArea" class="hidden" aria-hidden="true"></div>
 
-      <div class="app-grid">
-        <div class="panel">
-          <div class="panel-title">入力</div>
-          <div class="field-row">
-            <input id="dateInput" type="date" aria-label="日付">
-            <select id="categorySelect" aria-label="カテゴリ"></select>
-          </div>
-          <div class="field-row">
-            <input id="memoInput" type="text" placeholder="メモ" aria-label="メモ">
-          </div>
-          <div class="field-row">
-            <input id="amountInput" type="number" placeholder="金額" aria-label="金額" min="0" step="1">
-            <label><input type="radio" name="type" value="expense" checked> 支出</label>
-            <label><input type="radio" name="type" value="income"> 収入</label>
-          </div>
-          <div class="field-row">
-            <button class="btn-main" onclick="addTransaction()">登録</button>
-            <button class="btn-sub" onclick="clearInput()">クリア</button>
-          </div>
-
-          <hr style="border:none;border-top:1px solid rgba(31,41,55,0.9);margin:10px 0;">
-          <div class="panel-title">カテゴリ</div>
-          <div class="field-row">
-            <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）" aria-label="カテゴリ名">
-            <button class="btn-sub" onclick="addCategory()">追加</button>
-          </div>
-          <div id="categoryList" style="font-size:12px;color:var(--sub);max-height:120px;overflow-y:auto;"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">一覧</div>
-          <div class="list" id="listArea" role="list"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">集計</div>
-          <div class="summary-row" id="summaryArea" aria-live="polite">
-            <span><strong>収入合計</strong><span id="sumIncome">0</span></span>
-            <span><strong>支出合計</strong><span id="sumExpense">0</span></span>
-            <span><strong>差引</strong><span id="sumNet">0</span></span>
-          </div>
-        </div>
-
-      </div>
-    </div>
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<!-- Part3 -->
+
+  <script>
+    // DOM
+    const signupEmail = document.getElementById("signupEmail");
+    const signupPassword = document.getElementById("signupPassword");
+    const signupPasswordConfirm = document.getElementById("signupPasswordConfirm");
+    const signupBtn = document.getElementById("signupBtn");
+    const signupClear = document.getElementById("signupClear");
+    const signupMsg = document.getElementById("signupMsg");
+
+    const loginEmail = document.getElementById("loginEmail");
+    const loginPassword = document.getElementById("loginPassword");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginClear = document.getElementById("loginClear");
+    const loginMsg = document.getElementById("loginMsg");
+
+    const forgotLink = document.getElementById("forgotLink");
+    const helpLink = document.getElementById("helpLink");
+
+    const hintWrongField = document.getElementById("hintWrongField");
+    const hintCheckEmail = document.getElementById("hintCheckEmail");
+    const hintCheckPassword = document.getElementById("hintCheckPassword");
+    const hintConfirmEmail = document.getElementById("hintConfirmEmail");
+
+    // Supabase client placeholder (replace key in later parts)
+    const supabaseUrl = ""; // set in later part
+    const supabaseKey = ""; // set in later part
+    let supabase = null;
+
+    // Utility: clear hints
+    function clearHints() {
+      [hintWrongField, hintCheckEmail, hintCheckPassword, hintConfirmEmail].forEach(el => el.classList.add("hidden"));
+    }
+
+    // Map auth error to user-friendly hints
+    function showLoginErrorHints(err) {
+      clearHints();
+      if (!err) return;
+      const msg = (err.message || "").toLowerCase();
+      loginMsg.textContent = err.message || "認証に失敗しました。";
+      // common patterns
+      if (msg.includes("invalid") || msg.includes("format") || msg.includes("email")) {
+        hintCheckEmail.classList.remove("hidden");
+      }
+      if (msg.includes("password") || msg.includes("invalid login") || msg.includes("invalid credentials")) {
+        hintCheckPassword.classList.remove("hidden");
+      }
+      if (msg.includes("confirm") || msg.includes("email not confirmed") || msg.includes("verification")) {
+        hintConfirmEmail.classList.remove("hidden");
+      }
+      // fallback
+      if (!hintCheckEmail.classList.contains("hidden") || !hintCheckPassword.classList.contains("hidden") || !hintConfirmEmail.classList.contains("hidden")) {
+        // at least one specific hint shown
+      } else {
+        hintWrongField.classList.remove("hidden");
+      }
+    }
+
+    // Prevent double clicks and ensure buttons enabled
+    function setButtonState(btn, enabled) {
+      btn.disabled = !enabled;
+      if (enabled) btn.classList.remove("disabled");
+      else btn.classList.add("disabled");
+    }
+
+    // Basic client-side password validation for signup
+    function validatePasswordClient(pw, confirm) {
+      const minLen = 12;
+      if (!pw || pw.length < minLen) return { ok:false, msg:`パスワードは最低 ${minLen} 文字必要です` };
+      if (pw !== confirm) return { ok:false, msg:"パスワード確認が一致しません" };
+      return { ok:true };
+    }
+
+    // Attach simple handlers (actual auth functions implemented in later parts)
+    signupBtn.addEventListener("click", async () => {
+      signupMsg.textContent = "";
+      const email = signupEmail.value.trim();
+      const pw = signupPassword.value;
+      const confirm = signupPasswordConfirm.value;
+      const v = validatePasswordClient(pw, confirm);
+      if (!v.ok) { signupMsg.textContent = v.msg; return; }
+      if (!supabase) {
+        signupMsg.textContent = "システム未初期化（後で再試行してください）。";
+        return;
+      }
+      setButtonState(signupBtn, false);
+      try {
+        const res = await supabase.auth.signUp({ email, password: pw });
+        if (res.error) throw res.error;
+        signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
+        signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
+      } catch (err) {
+        signupMsg.textContent = "新規登録に失敗しました：" + (err.message || JSON.stringify(err));
+      } finally {
+        setButtonState(signupBtn, true);
+      }
+    });
+
+    signupClear.addEventListener("click", () => {
+      signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = ""; signupMsg.textContent = "";
+    });
+
+    loginBtn.addEventListener("click", async () => {
+      loginMsg.textContent = ""; clearHints();
+      const email = loginEmail.value.trim();
+      const pw = loginPassword.value;
+      if (!email || !pw) {
+        loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
+        return;
+      }
+      if (!supabase) {
+        loginMsg.textContent = "システム未初期化（後で再試行してください）。";
+        return;
+      }
+      setButtonState(loginBtn, false);
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw });
+        if (error) throw error;
+        // successful login will be handled in later parts (session restore and UI)
+        loginMsg.textContent = "";
+        // placeholder: show success briefly
+        loginMsg.textContent = "ログイン成功（処理を続行）";
+      } catch (err) {
+        showLoginErrorHints(err);
+      } finally {
+        setButtonState(loginBtn, true);
+      }
+    });
+
+    loginClear.addEventListener("click", () => {
+      loginEmail.value = ""; loginPassword.value = ""; loginMsg.textContent = ""; clearHints();
+    });
+
+    // Forgot link handler (will open modal or navigate in later parts)
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      // simple flow: open password recovery URL or show modal (implemented later)
+      window.alert("ID/パスワードを忘れた場合の手順を表示します（次のパートで詳細を実装）。");
+    });
+
+    helpLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.alert("ヘルプを表示します（次のパートで詳細を実装）。");
+    });
+
+    // Expose a small init function for later parts to set supabase client
+    window.__app_init_supabase = function(url, key) {
+      try {
+        const cleanKey = (key || "").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+        const cleanUrl = (url || "").trim();
+        if (!cleanUrl || !cleanKey) {
+          console.warn("supabase init: missing url or key");
+          return false;
+        }
+        supabase = window.supabase.createClient(cleanUrl, cleanKey);
+        console.log("supabase initialized");
+        return true;
+      } catch (e) {
+        console.error("supabase init error", e);
+        return false;
+      }
+    };
+
+    // quick sanity log
+    console.log("Part1 loaded");
+  </script>
+<!-- Part2/5 -->
+<div id="appArea" class="hidden" aria-hidden="true">
+  <div class="logout-row">
+    <div class="badge" id="loginUserLabel"><span class="badge-dot" aria-hidden="true"></span><span id="loginUserEmail">ログイン中</span></div>
+    <button id="logoutBtn" class="btn-sub" type="button">ログアウト</button>
+  </div>
+
+  <div class="app-grid">
+    <div class="panel" id="inputPanel" aria-labelledby="inputTitle">
+      <div class="panel-title" id="inputTitle">入力</div>
+
+      <div class="field-row">
+        <input id="dateInput" type="date" aria-label="日付" />
+        <select id="categorySelect" aria-label="カテゴリ"></select>
+      </div>
+
+      <div class="field-row">
+        <input id="memoInput" type="text" placeholder="メモ" aria-label="メモ" />
+      </div>
+
+      <div class="field-row">
+        <input id="amountInput" type="number" placeholder="金額" aria-label="金額" min="0" step="1" />
+        <label class="small"><input type="radio" name="type" value="expense" checked /> 支出</label>
+        <label class="small"><input type="radio" name="type" value="income" /> 収入</label>
+      </div>
+
+      <div class="field-row">
+        <button id="addTxBtn" class="btn-main" type="button">登録</button>
+        <button id="clearInputBtn" class="btn-sub" type="button">クリア</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(31,41,55,.9);margin:10px 0" />
+
+      <div class="panel-title">カテゴリ管理</div>
+      <div class="field-row">
+        <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）" />
+        <button id="addCategoryBtn" class="btn-sub" type="button">追加</button>
+      </div>
+      <div id="categoryList" style="font-size:13px;color:var(--sub);max-height:140px;overflow:auto"></div>
+    </div>
+
+    <div class="panel" id="listPanel" aria-labelledby="listTitle">
+      <div class="panel-title" id="listTitle">一覧</div>
+      <div class="list" id="listArea" role="list"></div>
+    </div>
+
+    <div class="panel" id="summaryPanel" aria-labelledby="summaryTitle">
+      <div class="panel-title" id="summaryTitle">集計</div>
+      <div class="summary-row" id="summaryArea" aria-live="polite">
+        <span><strong>収入合計</strong><span id="sumIncome">0</span></span>
+        <span><strong>支出合計</strong><span id="sumExpense">0</span></span>
+        <span><strong>差引</strong><span id="sumNet">0</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot / Reset Modal -->
+<div id="forgotModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="forgotTitle" style="position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999">
+  <div class="panel" style="width:420px;max-width:90%;padding:16px">
+    <div class="panel-title" id="forgotTitle">IDまたはパスワードを忘れた方</div>
+    <p class="muted small">登録済みのメールアドレスを入力してください。パスワード再設定用のメールを送信します。</p>
+    <input id="forgotEmail" type="email" placeholder="登録メールアドレス" style="margin-top:8px" />
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button id="forgotSendBtn" class="btn-main" type="button">送信</button>
+      <button id="forgotCloseBtn" class="btn-sub" type="button">閉じる</button>
+    </div>
+    <div id="forgotMsg" class="muted small" style="margin-top:8px"></div>
+  </div>
+</div>
+
 <script>
-  const supabaseUrl = "https://dgkltvgjhjvhodleawuq.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna2x0dmdqaGp2aG9kbGVhd3VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDgxNDksImV4cCI6MjA5NTg4NDE0OX0._kS7sxV0Isqhr78mQW6VxR1Nc34AhHa2prb2OtlsuE8";
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-  const signupEmail = document.getElementById("signupEmail");
-  const signupPassword = document.getElementById("signupPassword");
-  const signupPasswordConfirm = document.getElementById("signupPasswordConfirm");
-  const signupMsg = document.getElementById("signupMsg");
-
-  const loginEmail = document.getElementById("loginEmail");
-  const loginPassword = document.getElementById("loginPassword");
-  const loginMsg = document.getElementById("loginMsg");
-
-  const appArea = document.getElementById("appArea");
+  // DOM references for app area
+  const logoutBtn = document.getElementById("logoutBtn");
   const loginUserEmail = document.getElementById("loginUserEmail");
 
   const dateInput = document.getElementById("dateInput");
   const categorySelect = document.getElementById("categorySelect");
   const memoInput = document.getElementById("memoInput");
   const amountInput = document.getElementById("amountInput");
+  const addTxBtn = document.getElementById("addTxBtn");
+  const clearInputBtn = document.getElementById("clearInputBtn");
 
   const categoryNameInput = document.getElementById("categoryNameInput");
+  const addCategoryBtn = document.getElementById("addCategoryBtn");
   const categoryList = document.getElementById("categoryList");
 
   const listArea = document.getElementById("listArea");
@@ -148,82 +359,133 @@
   const sumExpense = document.getElementById("sumExpense");
   const sumNet = document.getElementById("sumNet");
 
+  // Forgot modal DOM
+  const forgotModal = document.getElementById("forgotModal");
+  const forgotEmail = document.getElementById("forgotEmail");
+  const forgotSendBtn = document.getElementById("forgotSendBtn");
+  const forgotCloseBtn = document.getElementById("forgotCloseBtn");
+  const forgotMsg = document.getElementById("forgotMsg");
+
+  // Supabase client (initialized via Part1's __app_init_supabase)
+  let supabase = window.supabase || null;
   let currentUser = null;
-</script>
-<!-- Part4 -->
-<script>
-  function validatePasswordClient(pw, confirm) {
-    const minLen = 12;
-    if (!pw || pw.length < minLen) return { ok:false, msg:`パスワードは最低 ${minLen} 文字必要です` };
-    if (pw !== confirm) return { ok:false, msg:"パスワード確認が一致しません" };
-    return { ok:true };
-  }
 
-  async function signup() {
-    signupMsg.textContent = "";
-    const email = signupEmail.value.trim();
-    const password = signupPassword.value;
-    const confirm = signupPasswordConfirm.value;
-    const v = validatePasswordClient(password, confirm);
-    if (!v.ok) { signupMsg.textContent = v.msg; return; }
-    try {
-      const res = await supabase.auth.signUp({ email, password });
-      console.log("signUp response", res);
-      if (res.error) throw res.error;
-      signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
-      signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
-    } catch (err) {
-      console.error("signup error", err);
-      signupMsg.textContent = "新規登録に失敗しました：" + (err.message || JSON.stringify(err));
+  // Utility: set today's date if empty
+  function ensureTodayDate() {
+    if (!dateInput.value) {
+      const t = new Date();
+      dateInput.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
     }
   }
 
-  async function login() {
-    loginMsg.textContent = "";
-    const email = loginEmail.value.trim();
-    const password = loginPassword.value;
-    if (!email || !password) { loginMsg.textContent = "メールアドレスとパスワードを入力してください。"; return; }
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      currentUser = data.user;
-      loginUserEmail.textContent = currentUser.email || "ログイン中";
-      appArea.classList.remove("hidden"); appArea.setAttribute("aria-hidden","false");
-      if (!dateInput.value) {
-        const t = new Date(); dateInput.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
-      }
-      await loadCategories(); await loadTransactions(); await renderSummary();
-    } catch (err) {
-      console.error("login error", err);
-      loginMsg.textContent = "ログインに失敗しました：" + (err.message || JSON.stringify(err));
-    }
+  // Button state helpers
+  function setBtn(btn, enabled) {
+    btn.disabled = !enabled;
+    if (!enabled) btn.style.opacity = "0.6";
+    else btn.style.opacity = "1";
   }
 
-  async function logout() {
-    try { await supabase.auth.signOut(); } catch(e){ console.warn("signOut error", e); }
+  // Event wiring
+  logoutBtn.addEventListener("click", async () => {
+    if (!supabase) return;
+    try { await supabase.auth.signOut(); } catch(e){ console.warn(e); }
     currentUser = null;
-    appArea.classList.add("hidden"); appArea.setAttribute("aria-hidden","true");
+    document.getElementById("appArea").classList.add("hidden");
+    document.getElementById("appArea").setAttribute("aria-hidden","true");
     loginUserEmail.textContent = "ログイン中";
-    listArea.innerHTML = ""; sumIncome.textContent = "0"; sumExpense.textContent = "0"; sumNet.textContent = "0";
-  }
+  });
 
-  (async () => {
+  addTxBtn.addEventListener("click", async () => {
+    if (!supabase || !currentUser) { alert("先にログインしてください。"); return; }
+    const date = dateInput.value;
+    const categoryId = categorySelect.value;
+    const memo = memoInput.value.trim();
+    const amount = Number(amountInput.value);
+    const type = document.querySelector('input[name="type"]:checked').value;
+    if (!date || !categoryId || !amount) { alert("日付・カテゴリ・金額は必須です。"); return; }
+    const catOption = categorySelect.options[categorySelect.selectedIndex];
+    const categoryName = catOption ? catOption.textContent : "";
+    setBtn(addTxBtn, false);
     try {
-      const { data } = await supabase.auth.getSession();
-      if (data && data.session && data.session.user) {
-        currentUser = data.session.user;
-        loginUserEmail.textContent = currentUser.email || "ログイン中";
-        appArea.classList.remove("hidden"); appArea.setAttribute("aria-hidden","false");
-        if (!dateInput.value) {
-          const t = new Date(); dateInput.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
-        }
-        await loadCategories(); await loadTransactions(); await renderSummary();
-      }
-    } catch (err) { console.error("session restore error", err); }
-  })();
+      const { error } = await supabase.from("transactions").insert({
+        user_id: currentUser.id,
+        date, category_id: categoryId, category_name: categoryName, memo, amount, type
+      });
+      if (error) throw error;
+      clearInput(false);
+      await loadTransactions();
+      await renderSummary();
+    } catch (err) {
+      console.error("addTransaction error", err);
+      alert("登録に失敗しました。");
+    } finally {
+      setBtn(addTxBtn, true);
+    }
+  });
 
+  clearInputBtn.addEventListener("click", () => clearInput(false));
+
+  addCategoryBtn.addEventListener("click", async () => {
+    if (!supabase || !currentUser) { alert("先にログインしてください。"); return; }
+    const name = categoryNameInput.value.trim();
+    if (!name) return;
+    setBtn(addCategoryBtn, false);
+    try {
+      const { error } = await supabase.from("categories").insert({ user_id: currentUser.id, name });
+      if (error) throw error;
+      categoryNameInput.value = "";
+      await loadCategories();
+    } catch (err) {
+      console.error("addCategory error", err);
+      alert("カテゴリ追加に失敗しました。");
+    } finally {
+      setBtn(addCategoryBtn, true);
+    }
+  });
+
+  // Forgot modal handlers
+  document.getElementById("forgotLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    forgotEmail.value = loginEmail.value || "";
+    forgotMsg.textContent = "";
+    forgotModal.classList.remove("hidden");
+  });
+
+  forgotCloseBtn.addEventListener("click", () => {
+    forgotModal.classList.add("hidden");
+  });
+
+  forgotSendBtn.addEventListener("click", async () => {
+    const email = forgotEmail.value.trim();
+    if (!email) { forgotMsg.textContent = "メールアドレスを入力してください。"; return; }
+    if (!supabase) { forgotMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
+    setBtn(forgotSendBtn, false);
+    forgotMsg.textContent = "送信中…";
+    try {
+      // Try to call reset password; if method unavailable, show message
+      if (typeof supabase.auth.resetPasswordForEmail === "function") {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) throw error;
+        forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
+      } else if (typeof supabase.auth.api !== "undefined" && typeof supabase.auth.api.resetPasswordForEmail === "function") {
+        // older compatibility
+        const { data, error } = await supabase.auth.api.resetPasswordForEmail(email);
+        if (error) throw error;
+        forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
+      } else {
+        forgotMsg.textContent = "パスワード再設定機能は現在利用できません。管理者に連絡してください。";
+      }
+    } catch (err) {
+      console.error("forgot error", err);
+      forgotMsg.textContent = "送信に失敗しました：" + (err.message || "");
+    } finally {
+      setBtn(forgotSendBtn, true);
+    }
+  });
+
+  // Data loading / rendering functions (used after login)
   async function loadCategories() {
-    if (!currentUser) return;
+    if (!supabase || !currentUser) return;
     try {
       const { data, error } = await supabase.from("categories").select("*").eq("user_id", currentUser.id).order("name",{ascending:true});
       if (error) throw error;
@@ -232,34 +494,23 @@
       categoryList.innerHTML = "";
       (data||[]).forEach(cat => {
         const o = document.createElement("option"); o.value = cat.id; o.textContent = cat.name; categorySelect.appendChild(o);
-        const div = document.createElement("div"); div.style.display="flex"; div.style.justifyContent="space-between"; div.style.alignItems="center"; div.style.padding="2px 0";
+        const div = document.createElement("div"); div.style.display="flex"; div.style.justifyContent="space-between"; div.style.alignItems="center"; div.style.padding="6px 0";
         const span = document.createElement("span"); span.textContent = cat.name;
-        const btn = document.createElement("button"); btn.textContent="削除"; btn.className="btn-sub"; btn.style.fontSize="11px"; btn.onclick = () => deleteCategory(cat.id);
+        const btn = document.createElement("button"); btn.textContent="削除"; btn.className="btn-sub"; btn.style.fontSize="12px"; btn.onclick = async () => {
+          if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
+          try {
+            const { error } = await supabase.from("categories").delete().eq("id", cat.id).eq("user_id", currentUser.id);
+            if (error) throw error;
+            await loadCategories();
+          } catch (err) { console.error("deleteCategory error", err); alert("カテゴリ削除に失敗しました。"); }
+        };
         div.appendChild(span); div.appendChild(btn); categoryList.appendChild(div);
       });
     } catch (err) { console.error("loadCategories error", err); }
   }
 
-  async function addCategory() {
-    if (!currentUser) { alert("先にログインしてください。"); return; }
-    const name = categoryNameInput.value.trim(); if (!name) return;
-    try {
-      const { error } = await supabase.from("categories").insert({ user_id: currentUser.id, name });
-      if (error) throw error;
-      categoryNameInput.value = ""; await loadCategories();
-    } catch (err) { console.error("addCategory error", err); alert("カテゴリ追加に失敗しました。"); }
-  }
-
-  async function deleteCategory(id) {
-    if (!currentUser) return; if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
-    try {
-      const { error } = await supabase.from("categories").delete().eq("id", id).eq("user_id", currentUser.id);
-      if (error) throw error; await loadCategories();
-    } catch (err) { console.error("deleteCategory error", err); alert("カテゴリ削除に失敗しました。"); }
-  }
-
   async function loadTransactions() {
-    if (!currentUser) return;
+    if (!supabase || !currentUser) return;
     try {
       const { data, error } = await supabase.from("transactions").select("id,date,category_name,memo,amount,type").eq("user_id", currentUser.id).order("date",{ascending:true}).order("id",{ascending:true});
       if (error) throw error;
@@ -267,28 +518,6 @@
     } catch (err) { console.error("loadTransactions error", err); }
   }
 
-  async function addTransaction() {
-    if (!currentUser) { alert("先にログインしてください。"); return; }
-    const date = dateInput.value; const categoryId = categorySelect.value; const memo = memoInput.value.trim(); const amount = Number(amountInput.value); const type = document.querySelector('input[name="type"]:checked').value;
-    if (!date || !categoryId || !amount) { alert("日付・カテゴリ・金額は必須です。"); return; }
-    const catOption = categorySelect.options[categorySelect.selectedIndex]; const categoryName = catOption ? catOption.textContent : "";
-    try {
-      const { error } = await supabase.from("transactions").insert({ user_id: currentUser.id, date, category_id: categoryId, category_name: categoryName, memo, amount, type });
-      if (error) throw error;
-      clearInput(false); await loadTransactions(); await renderSummary();
-    } catch (err) { console.error("addTransaction error", err); alert("登録に失敗しました。"); }
-  }
-
-  async function deleteTransaction(id) {
-    if (!currentUser) return; if (!confirm("この明細を削除しますか？")) return;
-    try {
-      const { error } = await supabase.from("transactions").delete().eq("id", id).eq("user_id", currentUser.id);
-      if (error) throw error; await loadTransactions(); await renderSummary();
-    } catch (err) { console.error("deleteTransaction error", err); alert("削除に失敗しました。"); }
-  }
-</script>
-<!-- Part5 -->
-<script>
   function renderList(rows) {
     listArea.innerHTML = "";
     if (!rows || rows.length === 0) { listArea.textContent = "データがありません。"; return; }
@@ -298,14 +527,21 @@
       const m = document.createElement("div"); m.textContent = r.memo || "";
       const c = document.createElement("div"); c.textContent = r.category_name || "";
       const a = document.createElement("div"); a.className = "list-item-amount " + (r.type === "income" ? "income" : "expense"); a.textContent = (r.type === "income" ? "+" : "-") + Number(r.amount || 0).toLocaleString();
-      const btn = document.createElement("button"); btn.textContent = "削除"; btn.className = "btn-sub"; btn.style.fontSize = "11px"; btn.onclick = () => deleteTransaction(r.id);
+      const btn = document.createElement("button"); btn.textContent = "削除"; btn.className = "btn-sub"; btn.style.fontSize = "12px"; btn.onclick = async () => {
+        if (!confirm("この明細を削除しますか？")) return;
+        try {
+          const { error } = await supabase.from("transactions").delete().eq("id", r.id).eq("user_id", currentUser.id);
+          if (error) throw error;
+          await loadTransactions(); await renderSummary();
+        } catch (err) { console.error("deleteTransaction error", err); alert("削除に失敗しました。"); }
+      };
       div.appendChild(d); div.appendChild(m); div.appendChild(c); div.appendChild(a); div.appendChild(btn);
       listArea.appendChild(div);
     });
   }
 
   async function renderSummary() {
-    if (!currentUser) return;
+    if (!supabase || !currentUser) return;
     try {
       const { data, error } = await supabase.from("transactions").select("amount,type").eq("user_id", currentUser.id);
       if (error) throw error;
@@ -320,6 +556,490 @@
     memoInput.value = "";
     amountInput.value = "";
   }
+
+  // Called by Part1 after __app_init_supabase returns true
+  window.__app_after_init = async function() {
+    try {
+      supabase = window.supabase || supabase;
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (data && data.session && data.session.user) {
+        currentUser = data.session.user;
+        loginUserEmail.textContent = currentUser.email || "ログイン中";
+        document.getElementById("appArea").classList.remove("hidden");
+        document.getElementById("appArea").setAttribute("aria-hidden","false");
+        ensureTodayDate();
+        await loadCategories(); await loadTransactions(); await renderSummary();
+      }
+    } catch (err) { console.error("session restore error", err); }
+  };
+
+  // quick sanity
+  console.log("Part2 loaded");
+</script>
+<!-- Part3/5 -->
+<script>
+  // Part3: Supabase 初期化と認証状態ハンドリング
+  (function(){
+    // local references (may already exist from earlier parts)
+    window.__app_supabase = window.__app_supabase || null;
+    window.__app_currentUser = window.__app_currentUser || null;
+
+    // sanitize inputs
+    function cleanString(s) {
+      return (s || "").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+    }
+
+    // initialize supabase client and attach auth listener
+    async function initSupabase(url, key) {
+      try {
+        const u = cleanString(url);
+        const k = cleanString(key);
+        if (!u || !k) {
+          console.warn("initSupabase: missing url or key");
+          return false;
+        }
+        window.__app_supabase = window.supabase.createClient(u, k);
+
+        // auth state change listener
+        try {
+          window.__app_supabase.auth.onAuthStateChange((event, session) => {
+            // event examples: SIGNED_IN, SIGNED_OUT, PASSWORD_RECOVERY, USER_UPDATED
+            if (session && session.user) {
+              window.__app_currentUser = session.user;
+              onUserSignedIn(session.user);
+            } else {
+              window.__app_currentUser = null;
+              onUserSignedOut();
+            }
+          });
+        } catch (e) {
+          console.warn("onAuthStateChange not available", e);
+        }
+
+        // attempt to restore session immediately
+        try {
+          const { data } = await window.__app_supabase.auth.getSession();
+          if (data && data.session && data.session.user) {
+            window.__app_currentUser = data.session.user;
+            onUserSignedIn(data.session.user);
+          } else {
+            onUserSignedOut();
+          }
+        } catch (e) {
+          console.warn("getSession error", e);
+        }
+
+        // expose globally for other parts
+        window.__app_after_init && window.__app_after_init();
+        return true;
+      } catch (err) {
+        console.error("initSupabase error", err);
+        return false;
+      }
+    }
+
+    // UI helpers when user signs in/out
+    function onUserSignedIn(user) {
+      try {
+        currentUser = user;
+      } catch(e){}
+      try {
+        document.getElementById("appArea").classList.remove("hidden");
+        document.getElementById("appArea").setAttribute("aria-hidden","false");
+      } catch(e){}
+      try {
+        const label = document.getElementById("loginUserEmail");
+        if (label) label.textContent = user.email || "ログイン中";
+      } catch(e){}
+      // ensure date and load data
+      try { ensureTodayDate(); } catch(e){}
+      // call data loaders if available
+      (async () => {
+        try { await loadCategories(); } catch(e){}
+        try { await loadTransactions(); } catch(e){}
+        try { await renderSummary(); } catch(e){}
+      })();
+    }
+
+    function onUserSignedOut() {
+      try {
+        currentUser = null;
+      } catch(e){}
+      try {
+        document.getElementById("appArea").classList.add("hidden");
+        document.getElementById("appArea").setAttribute("aria-hidden","true");
+      } catch(e){}
+      try {
+        const label = document.getElementById("loginUserEmail");
+        if (label) label.textContent = "ログイン中";
+      } catch(e){}
+      try {
+        listArea.innerHTML = "";
+        sumIncome.textContent = "0";
+        sumExpense.textContent = "0";
+        sumNet.textContent = "0";
+      } catch(e){}
+    }
+
+    // wire up login/signup to use the initialized client if user clicked before init
+    // override click handlers to ensure they use the live client
+    function ensureHandlers() {
+      // signup
+      const sBtn = document.getElementById("signupBtn");
+      if (sBtn) {
+        sBtn.addEventListener("click", async (ev) => {
+          signupMsg.textContent = "";
+          const email = signupEmail.value.trim();
+          const pw = signupPassword.value;
+          const confirm = signupPasswordConfirm.value;
+          const v = validatePasswordClient(pw, confirm);
+          if (!v.ok) { signupMsg.textContent = v.msg; return; }
+          if (!window.__app_supabase) { signupMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
+          setButtonState(sBtn, false);
+          try {
+            const res = await window.__app_supabase.auth.signUp({ email, password: pw });
+            if (res.error) throw res.error;
+            signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
+            signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
+          } catch (err) {
+            signupMsg.textContent = "新規登録に失敗しました：" + (err.message || JSON.stringify(err));
+          } finally {
+            setButtonState(sBtn, true);
+          }
+        }, { once: true });
+      }
+
+      // login
+      const lBtn = document.getElementById("loginBtn");
+      if (lBtn) {
+        lBtn.addEventListener("click", async (ev) => {
+          loginMsg.textContent = ""; clearHints();
+          const email = loginEmail.value.trim();
+          const pw = loginPassword.value;
+          if (!email || !pw) {
+            loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
+            return;
+          }
+          if (!window.__app_supabase) {
+            loginMsg.textContent = "システム未初期化です。後で再試行してください。";
+            return;
+          }
+          setButtonState(lBtn, false);
+          try {
+            const { data, error } = await window.__app_supabase.auth.signInWithPassword({ email, password: pw });
+            if (error) throw error;
+            // onAuthStateChange will handle UI; but ensure immediate update if session returned
+            if (data && data.user) {
+              onUserSignedIn(data.user);
+            }
+            loginMsg.textContent = "";
+          } catch (err) {
+            showLoginErrorHints(err);
+          } finally {
+            setButtonState(lBtn, true);
+          }
+        }, { once: true });
+      }
+    }
+
+    // small helper to set disabled style
+    function setButtonState(btn, enabled) {
+      try {
+        btn.disabled = !enabled;
+        btn.style.opacity = enabled ? "1" : "0.6";
+      } catch(e){}
+    }
+
+    // expose init function globally
+    window.__app_init = async function(url, key) {
+      const ok = await initSupabase(url, key);
+      if (ok) {
+        // rebind handlers to use the initialized client
+        try { ensureHandlers(); } catch(e){}
+        // call after init hook if present
+        try { window.__app_after_init && window.__app_after_init(); } catch(e){}
+      }
+      return ok;
+    };
+
+    // auto-run if __app_init_supabase was called earlier (compat)
+    if (typeof window.__app_init_supabase === "function" && !window.__app_supabase) {
+      // do not auto-call with empty values; caller should pass url/key
+      // keep for compatibility
+    }
+
+    // expose small debug
+    console.log("Part3 loaded: supabase init and auth handlers ready");
+  })();
+</script>
+<!-- Part4/5 -->
+<script>
+  // Part4: 認証処理の補完・パスワード再設定・ユーティリティ
+  (function(){
+    // safe references
+    const _getSupabase = () => window.__app_supabase || (window.supabase && window.supabase.createClient ? window.supabase : null);
+
+    // show transient message
+    function flash(el, msg, timeout = 4000) {
+      if (!el) return;
+      el.textContent = msg;
+      setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, timeout);
+    }
+
+    // map supabase auth errors to friendly text (used by showLoginErrorHints too)
+    function friendlyAuthMessage(err) {
+      if (!err) return "認証に失敗しました。";
+      const m = (err.message || "").toLowerCase();
+      if (m.includes("invalid") && m.includes("email")) return "メールアドレスの形式を確認してください。";
+      if (m.includes("invalid") && m.includes("password")) return "パスワードが正しくありません。";
+      if (m.includes("invalid login") || m.includes("invalid credentials")) return "メールアドレスまたはパスワードが正しくありません。";
+      if (m.includes("not confirmed") || m.includes("email not confirmed") || m.includes("confirm")) return "メールアドレスの確認が必要です。確認メールをチェックしてください。";
+      if (m.includes("rate limit") || m.includes("too many")) return "試行回数が多すぎます。しばらく待ってから再試行してください。";
+      return err.message || "認証に失敗しました。";
+    }
+
+    // expose a helper to initialize with URL/key (convenience)
+    window.__app_configure = async function(url, key) {
+      try {
+        const ok = await window.__app_init(url, key);
+        if (ok) {
+          // after init, call after_init hook
+          try { window.__app_after_init && window.__app_after_init(); } catch(e){}
+        }
+        return ok;
+      } catch (e) {
+        console.error("configure error", e);
+        return false;
+      }
+    };
+
+    // Password reset (alternative flow if resetPasswordForEmail not present)
+    async function sendPasswordReset(email) {
+      const client = _getSupabase();
+      if (!client) throw new Error("システム未初期化");
+      // prefer new API
+      if (typeof client.auth.resetPasswordForEmail === "function") {
+        return await client.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+      }
+      // fallback older API
+      if (client.auth.api && typeof client.auth.api.resetPasswordForEmail === "function") {
+        return await client.auth.api.resetPasswordForEmail(email);
+      }
+      throw new Error("パスワード再設定機能が利用できません");
+    }
+
+    // Attach forgot modal send using the above helper (idempotent)
+    if (typeof forgotSendBtn !== "undefined" && forgotSendBtn) {
+      forgotSendBtn.addEventListener("click", async () => {
+        const email = (forgotEmail.value || "").trim();
+        forgotMsg.textContent = "";
+        if (!email) { forgotMsg.textContent = "メールアドレスを入力してください。"; return; }
+        try {
+          setBtn(forgotSendBtn, false);
+          const res = await sendPasswordReset(email);
+          // res may contain error or data depending on API
+          if (res && res.error) throw res.error;
+          forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
+        } catch (err) {
+          console.error("sendPasswordReset error", err);
+          forgotMsg.textContent = friendlyAuthMessage(err);
+        } finally {
+          setBtn(forgotSendBtn, true);
+        }
+      });
+    }
+
+    // helper to set button disabled style
+    function setBtn(btn, enabled) {
+      if (!btn) return;
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? "1" : "0.6";
+    }
+
+    // ensure login/signup handlers are robust if user clicked before init
+    // (these handlers call window.__app_supabase if available)
+    const attachRobustHandlers = () => {
+      const sBtn = document.getElementById("signupBtn");
+      if (sBtn && !sBtn.__robust) {
+        sBtn.__robust = true;
+        sBtn.addEventListener("click", async () => {
+          signupMsg.textContent = "";
+          const email = signupEmail.value.trim();
+          const pw = signupPassword.value;
+          const confirm = signupPasswordConfirm.value;
+          const v = validatePasswordClient(pw, confirm);
+          if (!v.ok) { signupMsg.textContent = v.msg; return; }
+          const client = _getSupabase();
+          if (!client) { signupMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
+          setBtn(sBtn, false);
+          try {
+            const res = await client.auth.signUp({ email, password: pw });
+            if (res.error) throw res.error;
+            signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
+            signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
+          } catch (err) {
+            console.error("signup error", err);
+            signupMsg.textContent = friendlyAuthMessage(err);
+          } finally {
+            setBtn(sBtn, true);
+          }
+        });
+      }
+
+      const lBtn = document.getElementById("loginBtn");
+      if (lBtn && !lBtn.__robust) {
+        lBtn.__robust = true;
+        lBtn.addEventListener("click", async () => {
+          loginMsg.textContent = ""; clearHints();
+          const email = loginEmail.value.trim();
+          const pw = loginPassword.value;
+          if (!email || !pw) { loginMsg.textContent = "メールアドレスとパスワードを入力してください。"; return; }
+          const client = _getSupabase();
+          if (!client) { loginMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
+          setBtn(lBtn, false);
+          try {
+            const { data, error } = await client.auth.signInWithPassword({ email, password: pw });
+            if (error) throw error;
+            // if session returned, update UI
+            if (data && data.user) {
+              currentUser = data.user;
+              loginUserEmail.textContent = currentUser.email || "ログイン中";
+              document.getElementById("appArea").classList.remove("hidden");
+              document.getElementById("appArea").setAttribute("aria-hidden","false");
+              ensureTodayDate();
+              await loadCategories(); await loadTransactions(); await renderSummary();
+            }
+            loginMsg.textContent = "";
+          } catch (err) {
+            console.error("login error", err);
+            showLoginErrorHints(err);
+          } finally {
+            setBtn(lBtn, true);
+          }
+        });
+      }
+    };
+
+    // run attach
+    try { attachRobustHandlers(); } catch(e){ console.warn(e); }
+
+    // expose helper to programmatically sign in (for tests)
+    window.__app_signin = async function(email, password) {
+      const client = _getSupabase();
+      if (!client) throw new Error("supabase not initialized");
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      return data;
+    };
+
+    // small debug
+    console.log("Part4 loaded: auth helpers attached");
+  })();
+</script>
+<!-- Part5/5 -->
+<script>
+  // Part5: 最終パーツ — 補助関数、エラーハンドリング、初期化トリガー、終了タグ
+  (function(){
+    // safety: ensure global supabase reference is consistent
+    const getClient = () => window.__app_supabase || (window.supabase && window.supabase.createClient ? window.supabase : null);
+
+    // Robust loadTransactions/loadCategories wrappers (idempotent)
+    async function safeLoadCategories() {
+      try { await loadCategories(); } catch (e) { console.warn("safeLoadCategories", e); }
+    }
+    async function safeLoadTransactions() {
+      try { await loadTransactions(); } catch (e) { console.warn("safeLoadTransactions", e); }
+    }
+
+    // Ensure UI buttons are enabled (recover from disabled state)
+    function enableAllButtons() {
+      Array.from(document.querySelectorAll("button")).forEach(b => { b.disabled = false; b.style.opacity = "1"; });
+    }
+
+    // Global error handler to surface unexpected exceptions to console and UI
+    window.addEventListener("error", (ev) => {
+      console.error("Unhandled error:", ev.error || ev.message, ev);
+      // optionally show a non-blocking toast (simple)
+      try {
+        const el = document.getElementById("loginMsg") || document.getElementById("signupMsg");
+        if (el) el.textContent = "予期せぬエラーが発生しました。コンソールを確認してください。";
+      } catch(e){}
+      enableAllButtons();
+    });
+
+    window.addEventListener("unhandledrejection", (ev) => {
+      console.error("Unhandled rejection:", ev.reason);
+      try {
+        const el = document.getElementById("loginMsg") || document.getElementById("signupMsg");
+        if (el) el.textContent = "ネットワークまたは認証で問題が発生しました。";
+      } catch(e){}
+      enableAllButtons();
+    });
+
+    // Small utility: show modal message
+    function showModalMessage(title, message) {
+      try {
+        alert(title + "\n\n" + message);
+      } catch(e){}
+    }
+
+    // Expose a programmatic logout helper
+    window.__app_logout = async function() {
+      const client = getClient();
+      if (!client) return;
+      try { await client.auth.signOut(); } catch(e){ console.warn(e); }
+      try { onUserSignedOut(); } catch(e){ console.warn(e); }
+    };
+
+    // If the user provided SUPABASE_URL and SUPABASE_KEY as globals, auto-init
+    (async function autoInitFromGlobals(){
+      try {
+        const url = window.SUPABASE_URL || window.__SUPABASE_URL || "";
+        const key = window.SUPABASE_KEY || window.__SUPABASE_KEY || "";
+        if (url && key && typeof window.__app_configure === "function") {
+          const ok = await window.__app_configure(url, key);
+          if (ok) {
+            // call after init hook
+            try { window.__app_after_init && window.__app_after_init(); } catch(e){}
+          }
+        }
+      } catch(e){ console.warn("autoInitFromGlobals", e); }
+    })();
+
+    // Accessibility: close forgot modal on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        try { document.getElementById("forgotModal").classList.add("hidden"); } catch(e){}
+      }
+    });
+
+    // Defensive: ensure critical DOM elements exist and wire fallback handlers
+    (function ensureCriticalDom() {
+      try {
+        if (!document.getElementById("loginBtn")) {
+          console.warn("loginBtn missing");
+        }
+        if (!document.getElementById("signupBtn")) {
+          console.warn("signupBtn missing");
+        }
+        // ensure logout button exists
+        if (!document.getElementById("logoutBtn")) {
+          // create a minimal logout button if missing
+          const btn = document.createElement("button");
+          btn.id = "logoutBtn";
+          btn.className = "btn-sub";
+          btn.textContent = "ログアウト";
+          btn.style.display = "none";
+          document.body.appendChild(btn);
+          btn.addEventListener("click", async () => { try { await window.__app_logout(); } catch(e){} });
+        }
+      } catch(e){ console.warn(e); }
+    })();
+
+    // Final debug log
+    console.log("Part5 loaded: final utilities attached");
+  })();
 </script>
 </body>
 </html>
