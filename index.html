@@ -254,29 +254,29 @@
     <div class="auth-row">
       <div class="panel auth-panel">
         <div class="panel-title">新規登録</div>
-        <input id="signupEmail" type="email" placeholder="新規登録メールアドレス">
-        <input id="signupPassword" type="password" placeholder="新規登録パスワード（6文字以上）">
-        <button onclick="signup()">新規登録</button>
-        <div id="signupMsg" class="auth-msg"></div>
+        <input id="signupEmail" type="email" placeholder="新規登録メールアドレス" autocomplete="email">
+        <input id="signupPassword" type="password" placeholder="新規登録パスワード（6文字以上）" autocomplete="new-password">
+        <button id="signupBtn" onclick="signup()">新規登録</button>
+        <div id="signupMsg" class="auth-msg" aria-live="polite"></div>
       </div>
 
       <div class="panel auth-panel">
         <div class="panel-title">ログイン</div>
-        <input id="loginEmail" type="email" placeholder="メールアドレス">
-        <input id="loginPassword" type="password" placeholder="パスワード">
-        <button onclick="login()">ログイン</button>
-        <div id="loginMsg" class="auth-msg"></div>
+        <input id="loginEmail" type="email" placeholder="メールアドレス" autocomplete="email">
+        <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password">
+        <button id="loginBtn" onclick="login()">ログイン</button>
+        <div id="loginMsg" class="auth-msg" aria-live="polite"></div>
       </div>
     </div>
 
     <!-- ログイン後エリア -->
-    <div id="appArea" class="hidden">
+    <div id="appArea" class="hidden" aria-hidden="true">
       <div class="logout-row">
-        <span class="badge" id="loginUserLabel">
-          <span class="badge-dot"></span>
+        <span class="badge" id="loginUserLabel" role="status" aria-live="polite">
+          <span class="badge-dot" aria-hidden="true"></span>
           <span id="loginUserEmail">ログイン中</span>
         </span>
-        <button class="btn-sub" style="margin-left:8px;" onclick="logout()">ログアウト</button>
+        <button id="logoutBtn" class="btn-sub" style="margin-left:8px;" onclick="logout()">ログアウト</button>
       </div>
 
       <div class="app-grid">
@@ -285,22 +285,18 @@
           <div class="panel-title">入力</div>
 
           <div class="field-row">
-            <input id="dateInput" type="date">
-            <select id="categorySelect"></select>
+            <input id="dateInput" type="date" aria-label="日付">
+            <select id="categorySelect" aria-label="カテゴリ"></select>
           </div>
 
           <div class="field-row">
-            <input id="memoInput" type="text" placeholder="メモ">
+            <input id="memoInput" type="text" placeholder="メモ" aria-label="メモ">
           </div>
 
           <div class="field-row">
-            <input id="amountInput" type="number" placeholder="金額">
-            <label>
-              <input type="radio" name="type" value="expense" checked> 支出
-            </label>
-            <label>
-              <input type="radio" name="type" value="income"> 収入
-            </label>
+            <input id="amountInput" type="number" placeholder="金額" aria-label="金額" min="0" step="1">
+            <label><input type="radio" name="type" value="expense" checked> 支出</label>
+            <label><input type="radio" name="type" value="income"> 収入</label>
           </div>
 
           <div class="field-row">
@@ -312,7 +308,7 @@
 
           <div class="panel-title">カテゴリ</div>
           <div class="field-row">
-            <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）">
+            <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）" aria-label="カテゴリ名">
             <button class="btn-sub" onclick="addCategory()">追加</button>
           </div>
 
@@ -322,13 +318,13 @@
         <!-- 一覧パネル -->
         <div class="panel">
           <div class="panel-title">一覧</div>
-          <div class="list" id="listArea"></div>
+          <div class="list" id="listArea" role="list"></div>
         </div>
 
         <!-- 集計パネル -->
         <div class="panel">
           <div class="panel-title">集計</div>
-          <div class="summary-row" id="summaryArea">
+          <div class="summary-row" id="summaryArea" aria-live="polite">
             <span><strong>収入合計</strong><span id="sumIncome">0</span></span>
             <span><strong>支出合計</strong><span id="sumExpense">0</span></span>
             <span><strong>差引</strong><span id="sumNet">0</span></span>
@@ -338,99 +334,119 @@
       </div>
     </div>
   </div>
+
+  <!-- Supabase client: この行に余分な空白や不可視文字を入れないこと -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    /* ★ Supabase 初期化（恭平のURL / anon key をそのまま使用） */
-    const supabaseUrl = "https://dgkltvgjhjvhodleawuq.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna2x0dmdqaGp2aG9kbGVhd3VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDgxNDksImV4cCI6MjA5NTg4NDE0OX0._kS7sxV0Isqhr78mQW6VxR1Nc34AhHa2prb2OtlsuE8";
+<script>
+  /* ============================
+     Supabase 初期化（ここにあなたの URL と anon key を入れてください）
+     注意：URL に /rest/v1/ を付けないこと。行末に全角スペースを入れないこと。
+  ============================ */
+  const supabaseUrl = "https://dgkltvgjhjvhodleawuq.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna2x0dmdqaGp2aG9kbGVhd3VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDgxNDksImV4cCI6MjA5NTg4NDE0OX0._kS7sxV0Isqhr78mQW6VxR1Nc34AhHa2prb2OtlsuE8";
 
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    /* DOM 参照 */
-    const signupEmail = document.getElementById("signupEmail");
-    const signupPassword = document.getElementById("signupPassword");
-    const signupMsg = document.getElementById("signupMsg");
+  /* ============================
+     DOM 要素参照（必ず id と一致させる）
+  ============================ */
+  const signupEmail = document.getElementById("signupEmail");
+  const signupPassword = document.getElementById("signupPassword");
+  const signupMsg = document.getElementById("signupMsg");
 
-    const loginEmail = document.getElementById("loginEmail");
-    const loginPassword = document.getElementById("loginPassword");
-    const loginMsg = document.getElementById("loginMsg");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+  const loginMsg = document.getElementById("loginMsg");
 
-    const appArea = document.getElementById("appArea");
-    const loginUserEmail = document.getElementById("loginUserEmail");
+  const appArea = document.getElementById("appArea");
+  const loginUserEmail = document.getElementById("loginUserEmail");
 
-    const dateInput = document.getElementById("dateInput");
-    const categorySelect = document.getElementById("categorySelect");
-    const memoInput = document.getElementById("memoInput");
-    const amountInput = document.getElementById("amountInput");
+  const dateInput = document.getElementById("dateInput");
+  const categorySelect = document.getElementById("categorySelect");
+  const memoInput = document.getElementById("memoInput");
+  const amountInput = document.getElementById("amountInput");
 
-    const categoryNameInput = document.getElementById("categoryNameInput");
-    const categoryList = document.getElementById("categoryList");
+  const categoryNameInput = document.getElementById("categoryNameInput");
+  const categoryList = document.getElementById("categoryList");
 
-    const listArea = document.getElementById("listArea");
-    const sumIncome = document.getElementById("sumIncome");
-    const sumExpense = document.getElementById("sumExpense");
-    const sumNet = document.getElementById("sumNet");
+  const listArea = document.getElementById("listArea");
+  const sumIncome = document.getElementById("sumIncome");
+  const sumExpense = document.getElementById("sumExpense");
+  const sumNet = document.getElementById("sumNet");
 
-    /* ログイン中ユーザー */
-    let currentUser = null;
-    /* ============================
-       認証：新規登録
-    ============================ */
-    async function signup() {
-      signupMsg.textContent = "";
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
+  /* ログイン中ユーザー情報 */
+  let currentUser = null;
 
-      if (!email || !password) {
-        signupMsg.textContent = "メールアドレスとパスワードを入力してください。";
-        return;
-      }
-      if (password.length < 6) {
-        signupMsg.textContent = "パスワードは6文字以上にしてください。";
-        return;
-      }
+  /* ============================
+     ユーティリティ：エレメント存在チェック（デバッグ用）
+     ページ読み込み時に必須要素が揃っているか確認する
+  ============================ */
+  (function verifyDom() {
+    const required = [
+      "signupEmail","signupPassword","signupMsg",
+      "loginEmail","loginPassword","loginMsg",
+      "appArea","loginUserEmail",
+      "dateInput","categorySelect","memoInput","amountInput",
+      "categoryNameInput","categoryList",
+      "listArea","sumIncome","sumExpense","sumNet"
+    ];
+    const missing = required.filter(id => !document.getElementById(id));
+    if (missing.length) {
+      console.warn("Missing DOM elements:", missing);
+    }
+  })();
+</script>
+<script>
+  /* ============================
+     認証：新規登録 / ログイン / ログアウト
+  ============================ */
+  async function signup() {
+    signupMsg.textContent = "";
+    const email = signupEmail.value.trim();
+    const password = signupPassword.value.trim();
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
-
-      if (error) {
-        console.error(error);
-        signupMsg.textContent = "新規登録に失敗しました：" + (error.message || "");
-        return;
-      }
-
-      alert("新規登録が完了しました。ログインしてください。");
-      signupEmail.value = "";
-      signupPassword.value = "";
+    if (!email || !password) {
+      signupMsg.textContent = "メールアドレスとパスワードを入力してください。";
+      return;
+    }
+    if (password.length < 6) {
+      signupMsg.textContent = "パスワードは6文字以上にしてください。";
+      return;
     }
 
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      alert("新規登録が完了しました。確認メールを確認してからログインしてください。");
+      signupEmail.value = "";
+      signupPassword.value = "";
+    } catch (err) {
+      console.error(err);
+      signupMsg.textContent = "新規登録に失敗しました：" + (err.message || err);
+    }
+  }
 
-    /* ============================
-       認証：ログイン
-    ============================ */
-    async function login() {
-      loginMsg.textContent = "";
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
+  async function login() {
+    loginMsg.textContent = "";
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
 
-      if (!email || !password) {
-        loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
-        return;
-      }
+    if (!email || !password) {
+      loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
+      return;
+    }
 
+    try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        console.error(error);
-        loginMsg.textContent = "ログインに失敗しました：" + (error.message || "");
-        return;
-      }
+      if (error) throw error;
 
       currentUser = data.user;
       loginUserEmail.textContent = currentUser.email || "ログイン中";
       appArea.classList.remove("hidden");
+      appArea.setAttribute("aria-hidden", "false");
       loginMsg.textContent = "";
 
-      // 日付初期化
+      // 日付初期化（ログイン時）
       if (!dateInput.value) {
         const today = new Date();
         const yyyy = today.getFullYear();
@@ -442,36 +458,40 @@
       await loadCategories();
       await loadTransactions();
       await renderSummary();
+    } catch (err) {
+      console.error(err);
+      loginMsg.textContent = "ログインに失敗しました：" + (err.message || err);
     }
+  }
 
-
-    /* ============================
-       認証：ログアウト
-    ============================ */
-    async function logout() {
+  async function logout() {
+    try {
       await supabase.auth.signOut();
-      currentUser = null;
-
-      appArea.classList.add("hidden");
-      loginUserEmail.textContent = "ログイン中";
-
-      listArea.innerHTML = "";
-      sumIncome.textContent = "0";
-      sumExpense.textContent = "0";
-      sumNet.textContent = "0";
+    } catch (err) {
+      console.warn("signOut error", err);
     }
+    currentUser = null;
+    appArea.classList.add("hidden");
+    appArea.setAttribute("aria-hidden", "true");
+    loginUserEmail.textContent = "ログイン中";
 
+    listArea.innerHTML = "";
+    sumIncome.textContent = "0";
+    sumExpense.textContent = "0";
+    sumNet.textContent = "0";
+  }
 
-    /* ============================
-       ページ読み込み時：セッション復元
-    ============================ */
-    (async () => {
+  /* ============================
+     ページ読み込み時：セッション復元
+  ============================ */
+  (async () => {
+    try {
       const { data } = await supabase.auth.getSession();
-
-      if (data.session && data.session.user) {
+      if (data && data.session && data.session.user) {
         currentUser = data.session.user;
         loginUserEmail.textContent = currentUser.email || "ログイン中";
         appArea.classList.remove("hidden");
+        appArea.setAttribute("aria-hidden", "false");
 
         if (!dateInput.value) {
           const today = new Date();
@@ -485,24 +505,25 @@
         await loadTransactions();
         await renderSummary();
       }
-    })();
+    } catch (err) {
+      console.error("session restore error", err);
+    }
+  })();
 
-    /* ============================
-       カテゴリ読み込み
-    ============================ */
-    async function loadCategories() {
-      if (!currentUser) return;
+  /* ============================
+     カテゴリ読み込み / 追加 / 削除
+  ============================ */
+  async function loadCategories() {
+    if (!currentUser) return;
 
+    try {
       const { data, error } = await supabase
         .from("categories")
         .select("*")
         .eq("user_id", currentUser.id)
         .order("name", { ascending: true });
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) throw error;
 
       categorySelect.innerHTML = "";
       const opt = document.createElement("option");
@@ -534,65 +555,62 @@
         div.appendChild(btn);
         categoryList.appendChild(div);
       });
+    } catch (err) {
+      console.error("loadCategories error", err);
+    }
+  }
+
+  async function addCategory() {
+    if (!currentUser) {
+      alert("先にログインしてください。");
+      return;
     }
 
+    const name = categoryNameInput.value.trim();
+    if (!name) return;
 
-    /* ============================
-       カテゴリ追加
-    ============================ */
-    async function addCategory() {
-      if (!currentUser) {
-        alert("先にログインしてください。");
-        return;
-      }
-
-      const name = categoryNameInput.value.trim();
-      if (!name) return;
-
+    try {
       const { error } = await supabase
         .from("categories")
         .insert({ user_id: currentUser.id, name });
 
-      if (error) {
-        console.error(error);
-        alert("カテゴリ追加に失敗しました。");
-        return;
-      }
+      if (error) throw error;
 
       categoryNameInput.value = "";
       await loadCategories();
+    } catch (err) {
+      console.error("addCategory error", err);
+      alert("カテゴリ追加に失敗しました。");
     }
+  }
 
+  async function deleteCategory(id) {
+    if (!currentUser) return;
+    if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
 
-    /* ============================
-       カテゴリ削除
-    ============================ */
-    async function deleteCategory(id) {
-      if (!currentUser) return;
-      if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
-
+    try {
       const { error } = await supabase
         .from("categories")
         .delete()
         .eq("id", id)
         .eq("user_id", currentUser.id);
 
-      if (error) {
-        console.error(error);
-        alert("カテゴリ削除に失敗しました。");
-        return;
-      }
+      if (error) throw error;
 
       await loadCategories();
+    } catch (err) {
+      console.error("deleteCategory error", err);
+      alert("カテゴリ削除に失敗しました。");
     }
+  }
 
+  /* ============================
+     明細読み込み / 登録 / 削除
+  ============================ */
+  async function loadTransactions() {
+    if (!currentUser) return;
 
-    /* ============================
-       明細読み込み
-    ============================ */
-    async function loadTransactions() {
-      if (!currentUser) return;
-
+    try {
       const { data, error } = await supabase
         .from("transactions")
         .select("id, date, category_name, memo, amount, type")
@@ -600,38 +618,35 @@
         .order("date", { ascending: true })
         .order("id", { ascending: true });
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) throw error;
 
       renderList(data);
+    } catch (err) {
+      console.error("loadTransactions error", err);
+    }
+  }
+
+  async function addTransaction() {
+    if (!currentUser) {
+      alert("先にログインしてください。");
+      return;
     }
 
+    const date = dateInput.value;
+    const categoryId = categorySelect.value;
+    const memo = memoInput.value.trim();
+    const amount = Number(amountInput.value);
+    const type = document.querySelector('input[name="type"]:checked').value;
 
-    /* ============================
-       明細登録
-    ============================ */
-    async function addTransaction() {
-      if (!currentUser) {
-        alert("先にログインしてください。");
-        return;
-      }
+    if (!date || !categoryId || !amount) {
+      alert("日付・カテゴリ・金額は必須です。");
+      return;
+    }
 
-      const date = dateInput.value;
-      const categoryId = categorySelect.value;
-      const memo = memoInput.value.trim();
-      const amount = Number(amountInput.value);
-      const type = document.querySelector('input[name="type"]:checked').value;
+    const catOption = categorySelect.options[categorySelect.selectedIndex];
+    const categoryName = catOption ? catOption.textContent : "";
 
-      if (!date || !categoryId || !amount) {
-        alert("日付・カテゴリ・金額は必須です。");
-        return;
-      }
-
-      const catOption = categorySelect.options[categorySelect.selectedIndex];
-      const categoryName = catOption ? catOption.textContent : "";
-
+    try {
       const { error } = await supabase
         .from("transactions")
         .insert({
@@ -644,126 +659,35 @@
           type
         });
 
-      if (error) {
-        console.error(error);
-        alert("登録に失敗しました。");
-        return;
-      }
+      if (error) throw error;
 
       clearInput(false);
       await loadTransactions();
       await renderSummary();
+    } catch (err) {
+      console.error("addTransaction error", err);
+      alert("登録に失敗しました。");
     }
+  }
 
+async function deleteTransaction(id) {
+    if (!currentUser) return;
+    if (!confirm("この明細を削除しますか？")) return;
 
-    /* ============================
-       明細削除
-    ============================ */
-    async function deleteTransaction(id) {
-      if (!currentUser) return;
-      if (!confirm("この明細を削除しますか？")) return;
-
+    try {
       const { error } = await supabase
         .from("transactions")
         .delete()
         .eq("id", id)
         .eq("user_id", currentUser.id);
 
-      if (error) {
-        console.error(error);
-        alert("削除に失敗しました。");
-        return;
-      }
+      if (error) throw error;
 
       await loadTransactions();
       await renderSummary();
+    } catch (err) {
+      console.error("deleteTransaction error", err);
+      alert("削除に失敗しました。");
     }
-
-
-    /* ============================
-       一覧描画
-    ============================ */
-    function renderList(rows) {
-      listArea.innerHTML = "";
-
-      if (!rows || rows.length === 0) {
-        listArea.textContent = "データがありません。";
-        return;
-      }
-
-      rows.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-
-        const d = document.createElement("div");
-        d.textContent = r.date;
-
-        const m = document.createElement("div");
-        m.textContent = r.memo || "";
-
-        const c = document.createElement("div");
-        c.textContent = r.category_name || "";
-
-        const a = document.createElement("div");
-        a.className = "list-item-amount " + (r.type === "income" ? "income" : "expense");
-        a.textContent = (r.type === "income" ? "+" : "-") + Number(r.amount).toLocaleString();
-
-        const btn = document.createElement("button");
-        btn.textContent = "削除";
-        btn.className = "btn-sub";
-        btn.style.fontSize = "11px";
-        btn.onclick = () => deleteTransaction(r.id);
-
-        div.appendChild(d);
-        div.appendChild(m);
-        div.appendChild(c);
-        div.appendChild(a);
-        div.appendChild(btn);
-
-        listArea.appendChild(div);
-      });
-    }
-
-
-    /* ============================
-       集計
-    ============================ */
-    async function renderSummary() {
-      if (!currentUser) return;
-
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("amount, type")
-        .eq("user_id", currentUser.id);
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      let income = 0;
-      let expense = 0;
-
-      data.forEach(r => {
-        if (r.type === "income") income += Number(r.amount) || 0;
-        else expense += Number(r.amount) || 0;
-      });
-
-      sumIncome.textContent = income.toLocaleString();
-      sumExpense.textContent = expense.toLocaleString();
-      sumNet.textContent = (income - expense).toLocaleString();
-    }
-
-
-    /* ============================
-       入力クリア
-    ============================ */
-      function clearInput(clearDate = false) {
-      if (clearDate) dateInput.value = "";
-      memoInput.value = "";
-      amountInput.value = "";
-    }
-
-  </script>
-</body>
-</html>
+  }
+</script>
