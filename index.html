@@ -1,795 +1,769 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<title>経理アプリ Ultimate Secure</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>極密アプリ Ultimate Secure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-:root{
-  --bg:#020617;
-  --card:#0f172a;
-  --accent:#38bdf8;
-  --accent2:#22c55e;
-  --text:#e2e8f0;
-  --sub:#94a3b8;
-  --income:#4ade80;
-  --expense:#f97373;
-  --danger:#f97373;
-}
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  background:radial-gradient(circle at top,#1e293b 0,#020617 55%);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  height:100vh;
-  display:flex;
-}
-input,select,textarea,button{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:8px;
-  border:1px solid rgba(148,163,184,0.5);
-  background:#020617;
-  color:var(--text);
-  font-size:14px;
-}
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:var(--accent);
-  box-shadow:0 0 0 1px rgba(56,189,248,0.5);
-}
-button{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-}
-button:hover{filter:brightness(1.08);}
-button:disabled{
-  opacity:0.5;
-  cursor:not-allowed;
-}
-label{font-size:13px;color:var(--sub);}
-small{font-size:11px;color:var(--sub);}
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-soft: #111827;
+      --border: #1f2937;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56,189,248,0.15);
+      --danger: #f97373;
+      --text: #e5e7eb;
+      --sub: #9ca3af;
+      --income: #4ade80;
+      --expense: #f97373;
+    }
 
-/* オーバーレイ画面 */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,0.9);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-.box{
-  background:var(--card);
-  padding:24px 24px 18px;
-  border-radius:16px;
-  width:340px;
-  max-width:90vw;
-  box-shadow:0 20px 40px rgba(0,0,0,0.6);
-}
-.box h2{
-  margin:0 0 10px;
-  font-size:20px;
-}
-.msg{
-  min-height:18px;
-  font-size:12px;
-  margin-top:4px;
-}
+    * { box-sizing: border-box; }
 
-/* レイアウト */
-#sidebar{
-  width:250px;
-  background:#020617;
-  border-right:1px solid rgba(148,163,184,0.3);
-  padding:16px;
-  display:none;
-  flex-direction:column;
-  gap:8px;
-}
-#main{
-  flex:1;
-  padding:16px;
-  overflow-y:auto;
-  display:none;
-}
-.menu-btn{
-  padding:10px;
-  border-radius:8px;
-  border:1px solid rgba(148,163,184,0.4);
-  background:transparent;
-  color:var(--text);
-  text-align:left;
-  font-size:14px;
-}
-.menu-btn:hover{
-  background:rgba(15,23,42,0.9);
-  border-color:var(--accent);
-}
-.menu-btn.active{
-  background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(34,197,94,0.2));
-  border-color:var(--accent2);
-}
-.card{
-  background:rgba(15,23,42,0.95);
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.5);
-}
-.card h2{
-  margin-top:0;
-  font-size:18px;
-}
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+      color: var(--text);
+    }
 
-/* テーブル */
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-th,td{
-  padding:6px 8px;
-  border-bottom:1px solid rgba(51,65,85,0.9);
-}
-th{
-  text-align:left;
-  color:var(--sub);
-  font-weight:500;
-}
-tr:hover td{
-  background:rgba(15,23,42,0.8);
-}
+    h1 {
+      margin: 8px 0 16px;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+    }
 
-/* スマホ対応 */
-@media(max-width:800px){
-  body{flex-direction:column;}
-  #sidebar{
-    width:100%;
-    flex-direction:row;
-    overflow-x:auto;
-  }
-  .menu-btn{flex:1;white-space:nowrap;font-size:12px;}
-}
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-/* 小さなラベル */
-.badge{
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:999px;
-  font-size:11px;
-}
-.badge-income{background:rgba(74,222,128,0.15);color:var(--income);}
-.badge-expense{background:rgba(248,113,113,0.15);color:var(--expense);}
-.badge-muted{background:rgba(148,163,184,0.2);color:var(--sub);}
-</style>
+    .auth-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--sub);
+      letter-spacing: 0.08em;
+    }
+
+    .auth-panel {
+      flex: 1 1 260px;
+    }
+
+    .auth-panel input {
+      width: 100%;
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .auth-panel button {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .auth-panel button:hover {
+      border-color: var(--accent);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .auth-msg {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 16px;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .app-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .field-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .field-row input,
+    .field-row select {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .field-row input[type="date"] {
+      min-width: 130px;
+      flex: 0 0 auto;
+    }
+
+    .field-row input[type="number"] {
+      max-width: 140px;
+      flex: 0 0 auto;
+      text-align: right;
+    }
+
+    .field-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .btn-main {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-main:hover {
+      background: rgba(56,189,248,0.25);
+    }
+
+    .btn-sub {
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--sub);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-sub:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .list {
+      max-height: 420px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: 70px 1fr 80px 70px 60px;
+      gap: 4px;
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      align-items: center;
+    }
+
+    .list-item:nth-child(2n) {
+      background: rgba(15,23,42,0.7);
+    }
+
+    .list-item-amount.income { color: var(--income); }
+    .list-item-amount.expense { color: var(--expense); }
+
+    .summary-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .summary-row span {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary-row strong {
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 11px;
+      color: var(--sub);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .logout-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
-
 <body>
-<body>
-<div id="signupArea" style="margin:20px 0;">
-  <input id="signupEmail" type="email" placeholder="新規登録メールアドレス">
-  <input id="signupPassword" type="password" placeholder="新規登録パスワード">
-  <button onclick="signup()">新規登録</button>
-</div>
+  <div class="wrap">
+    <h1>極密アプリ Ultimate Secure</h1>
 
-<div id="loginArea" style="margin:20px 0;">
-  <input id="loginEmail" type="email" placeholder="メールアドレス">
-  <input id="loginPassword" type="password" placeholder="パスワード">
-  <button onclick="login()">ログイン</button>
-</div>
-/* =========================
-   ユーティリティ
-========================= */
-function safeText(s){
-  return String(s)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-}
-function enc(s){return btoa(unescape(encodeURIComponent(s)));}
-function dec(s){
-  try{return decodeURIComponent(escape(atob(s)));}
-  catch(e){return "[]";}
-}
-async function sha256(s){
-  const buf=new TextEncoder().encode(s);
-  const hash=await crypto.subtle.digest("SHA-256",buf);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
-}
+    <!-- 認証エリア -->
+    <div class="auth-row">
+      <div class="panel auth-panel">
+        <div class="panel-title">新規登録</div>
+        <input id="signupEmail" type="email" placeholder="新規登録メールアドレス">
+        <input id="signupPassword" type="password" placeholder="新規登録パスワード（6文字以上）">
+        <button onclick="signup()">新規登録</button>
+        <div id="signupMsg" class="auth-msg"></div>
+      </div>
 
-const USER_KEY="users_v2";
-const DATA_KEY="data_v2_";
-const CAT_KEY="cats_v2_";
-let currentUser=null;
-let autoLogoutTimer=null;
-let monthChart=null;
+      <div class="panel auth-panel">
+        <div class="panel-title">ログイン</div>
+        <input id="loginEmail" type="email" placeholder="メールアドレス">
+        <input id="loginPassword" type="password" placeholder="パスワード">
+        <button onclick="login()">ログイン</button>
+        <div id="loginMsg" class="auth-msg"></div>
+      </div>
+    </div>
 
-/* =========================
-   ユーザー管理
-========================= */
-function loadUsers(){
-  try{
-    return JSON.parse(localStorage.getItem(USER_KEY)||"{}");
-  }catch(e){
-    console.error("ユーザー読み込み失敗",e);
-    return {};
-  }
-}
-function saveUsers(u){
-  try{
-    localStorage.setItem(USER_KEY,JSON.stringify(u));
-  }catch(e){
-    console.error("ユーザー保存失敗",e);
-  }
-}
+    <!-- ログイン後エリア -->
+    <div id="appArea" class="hidden">
+      <div class="logout-row">
+        <span class="badge" id="loginUserLabel">
+          <span class="badge-dot"></span>
+          <span id="loginUserEmail">ログイン中</span>
+        </span>
+        <button class="btn-sub" style="margin-left:8px;" onclick="logout()">ログアウト</button>
+      </div>
 
-/* =========================
-   データ管理
-========================= */
-function loadData(){
-  if(!currentUser) return [];
-  try{
-    const raw=localStorage.getItem(DATA_KEY+currentUser);
-    if(!raw) return [];
-    const json=dec(raw);
-    const arr=JSON.parse(json);
-    if(!Array.isArray(arr)) return [];
-    return arr;
-  }catch(e){
-    console.error("データ読み込み失敗",e);
-    return [];
-  }
-}
-function saveData(arr){
-  if(!currentUser) return;
-  try{
-    const json=JSON.stringify(arr);
-    localStorage.setItem(DATA_KEY+currentUser,enc(json));
-  }catch(e){
-    console.error("データ保存失敗",e);
-  }
-}
+      <div class="app-grid">
+        <!-- 入力パネル -->
+        <div class="panel">
+          <div class="panel-title">入力</div>
 
-/* =========================
-   カテゴリ管理
-========================= */
-function loadCats(){
-  if(!currentUser) return [];
-  try{
-    const raw=localStorage.getItem(CAT_KEY+currentUser);
-    if(raw){
-      const arr=JSON.parse(raw);
-      if(Array.isArray(arr)&&arr.length>0) return arr;
-    }
-  }catch(e){
-    console.error("カテゴリ読み込み失敗",e);
-  }
-  const def=["食費","日用品","交通費","趣味","交際費","固定費","バイト代","その他"];
-  try{
-    localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(def));
-  }catch(e){
-    console.error("カテゴリ初期化失敗",e);
-  }
-  return def;
-}
-function saveCats(arr){
-  if(!currentUser) return;
-  try{
-    localStorage.setItem(CAT_KEY+currentUser,JSON.stringify(arr));
-  }catch(e){
-    console.error("カテゴリ保存失敗",e);
-  }
-}
+          <div class="field-row">
+            <input id="dateInput" type="date">
+            <select id="categorySelect"></select>
+          </div>
 
-function renderCategorySelect(){
-  const cats=loadCats();
-  categorySelect.innerHTML="";
-  cats.forEach(c=>{
-    const op=document.createElement("option");
-    op.value=c;
-    op.textContent=c;
-    categorySelect.appendChild(op);
-  });
-}
+          <div class="field-row">
+            <input id="memoInput" type="text" placeholder="メモ">
+          </div>
 
-function renderCategoryPage(){
-  const cats=loadCats();
-  categoryBody.innerHTML="";
-  cats.forEach((c,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td>${safeText(c)}</td>
-      <td><button onclick="deleteCategory(${i})">削除</button></td>
-    `;
-    categoryBody.appendChild(tr);
-  });
-  renderCategorySelect();
-}
+          <div class="field-row">
+            <input id="amountInput" type="number" placeholder="金額">
+            <label>
+              <input type="radio" name="type" value="expense" checked> 支出
+            </label>
+            <label>
+              <input type="radio" name="type" value="income"> 収入
+            </label>
+          </div>
 
-addCategoryBtn.onclick=()=>{
-  const name=newCategoryName.value.trim();
-  if(!name){return;}
-  const cats=loadCats();
-  if(cats.includes(name)){alert("既に存在します");return;}
-  cats.push(name);
-  saveCats(cats);
-  newCategoryName.value="";
-  renderCategoryPage();
-};
+          <div class="field-row">
+            <button class="btn-main" onclick="addTransaction()">登録</button>
+            <button class="btn-sub" onclick="clearInput()">クリア</button>
+          </div>
 
-function deleteCategory(i){
-  const cats=loadCats();
-  cats.splice(i,1);
-  saveCats(cats);
-  renderCategoryPage();
-}
+          <hr style="border:none;border-top:1px solid rgba(31,41,55,0.9);margin:10px 0;">
 
-/* =========================
-   一覧
-========================= */
-// =========================
-//   取引一覧（Supabase版）
-// =========================
-async function renderList() {
-  listBody.innerHTML = "";
+          <div class="panel-title">カテゴリ</div>
+          <div class="field-row">
+            <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）">
+            <button class="btn-sub" onclick="addCategory()">追加</button>
+          </div>
 
-  // ★ Supabase からデータ取得（date 昇順）
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("*")
-    .order("date", { ascending: true });
+          <div id="categoryList" style="font-size:12px;color:var(--sub);max-height:120px;overflow-y:auto;"></div>
+        </div>
 
-  if (error) {
-    console.error(error);
-    listBody.innerHTML = "<tr><td colspan='8'>読み込みに失敗しました</td></tr>";
-    return;
-  }
+        <!-- 一覧パネル -->
+        <div class="panel">
+          <div class="panel-title">一覧</div>
+          <div class="list" id="listArea"></div>
+        </div>
 
-  data.forEach((e, i) => {
-    const typeLabel =
-      e.type === "income"
-        ? `<span class="badge badge-income">収入</span>`
-        : `<span class="badge badge-expense">支出</span>`;
+        <!-- 集計パネル -->
+        <div class="panel">
+          <div class="panel-title">集計</div>
+          <div class="summary-row" id="summaryArea">
+            <span><strong>収入合計</strong><span id="sumIncome">0</span></span>
+            <span><strong>支出合計</strong><span id="sumExpense">0</span></span>
+            <span><strong>差引</strong><span id="sumNet">0</span></span>
+          </div>
+        </div>
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${safeText(e.date)}</td>
-      <td>${typeLabel}</td>
-      <td>${safeText(e.item)}</td>
-      <td>${e.amount}</td>
-      <td>${safeText(e.category)}</td>
-      <td>${safeText(e.note || "")}</td>
-      <td><button onclick="delEntry('${e.id}')">削除</button></td>
-    `;
-    listBody.appendChild(tr);
-  });
-}
+      </div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    /* ★ Supabase 初期化（恭平のURL / anon key をそのまま使用） */
+    const supabaseUrl = "https://dgkltvgjhjvhodleawuq.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna2x0dmdqaGp2aG9kbGVhd3VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDgxNDksImV4cCI6MjA5NTg4NDE0OX0._kS7sxV0Isqhr78mQW6VxR1Nc34AhHa2prb2OtlsuE8";
 
-// =========================
-//   削除（Supabase版）
-// =========================
-async function delEntry(id) {
-  const { error } = await supabase
-    .from("transactions")
-    .delete()
-    .eq("id", id);
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-  if (error) {
-    console.error(error);
-    alert("削除に失敗しました");
-    return;
-  }
+    /* DOM 参照 */
+    const signupEmail = document.getElementById("signupEmail");
+    const signupPassword = document.getElementById("signupPassword");
+    const signupMsg = document.getElementById("signupMsg");
 
-  renderList();
-  renderSummary();
-}
+    const loginEmail = document.getElementById("loginEmail");
+    const loginPassword = document.getElementById("loginPassword");
+    const loginMsg = document.getElementById("loginMsg");
 
-/* =========================
-   取引登録
-========================= */
-addBtn.onclick = async () => {
-  addMsg.textContent = "";
-  const d = date.value;
-  const t = type.value;
-  const cat = categorySelect.value;
-  const it = item.value.trim();
-  const am = parseFloat(amount.value);
-  const no = note.value.trim();
+    const appArea = document.getElementById("appArea");
+    const loginUserEmail = document.getElementById("loginUserEmail");
 
-  if (!d || !it || isNaN(am) || am < 0) {
-    addMsg.textContent = "日付・品目・金額を確認してください";
-    return;
-  }
+    const dateInput = document.getElementById("dateInput");
+    const categorySelect = document.getElementById("categorySelect");
+    const memoInput = document.getElementById("memoInput");
+    const amountInput = document.getElementById("amountInput");
 
-  // ★ ログイン中のユーザーIDを取得
-  const { data: { user } } = await supabase.auth.getUser();
+    const categoryNameInput = document.getElementById("categoryNameInput");
+    const categoryList = document.getElementById("categoryList");
 
-  if (!user) {
-    alert("ログインしてください");
-    return;
-  }
+    const listArea = document.getElementById("listArea");
+    const sumIncome = document.getElementById("sumIncome");
+    const sumExpense = document.getElementById("sumExpense");
+    const sumNet = document.getElementById("sumNet");
 
-  // ★ Supabase に保存（user_id を含める）
-  const { error } = await supabase
-    .from("transactions")
-    .insert([
-      {
-        user_id: user.id,
-        date: d,
-        type: t,
-        item: it,
-        amount: am,
-        category: cat,
-        note: no
+    /* ログイン中ユーザー */
+    let currentUser = null;
+    /* ============================
+       認証：新規登録
+    ============================ */
+    async function signup() {
+      signupMsg.textContent = "";
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+
+      if (!email || !password) {
+        signupMsg.textContent = "メールアドレスとパスワードを入力してください。";
+        return;
       }
-    ]);
-
-  if (error) {
-    console.error(error);
-    addMsg.textContent = "保存に失敗しました…";
-    return;
-  }
-
-  item.value = "";
-  amount.value = "";
-  note.value = "";
-
-  renderList();
-  renderSummary();
-};
-
-
-// =========================
-//   集計（Supabase版）
-// =========================
-async function renderSummary() {
-  // ★ Supabase から全データ取得
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("*");
-
-  if (error) {
-    console.error(error);
-    dashSummary.textContent = "集計の読み込みに失敗しました";
-    return;
-  }
-
-  let income = 0, expense = 0;
-  const byMonth = {};
-
-  data.forEach(e => {
-    if (e.type === "income") income += e.amount;
-    else expense += e.amount;
-
-    const m = (e.date || "").slice(0, 7);
-    if (!m) return;
-
-    if (!byMonth[m]) byMonth[m] = { income: 0, expense: 0 };
-
-    if (e.type === "income") byMonth[m].income += e.amount;
-    else byMonth[m].expense += e.amount;
-  });
-
-  const balance = income - expense;
-
-  // 上部のサマリー表示
-  dashSummary.textContent =
-    `収入 ${income.toLocaleString()} 円 / ` +
-    `支出 ${expense.toLocaleString()} 円 / ` +
-    `残高 ${balance.toLocaleString()} 円`;
-
-  // 月別グラフ用データ
-  const labels = Object.keys(byMonth).sort();
-  const incomeData = labels.map(m => byMonth[m].income);
-  const expenseData = labels.map(m => byMonth[m].expense);
-
-  // 既存チャート破棄
-  if (monthChart) monthChart.destroy();
-
-  const ctx = document.getElementById("monthChart").getContext("2d");
-
-  monthChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: "収入", data: incomeData, backgroundColor: "rgba(74,222,128,0.6)" },
-        { label: "支出", data: expenseData, backgroundColor: "rgba(248,113,113,0.7)" }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: "#e2e8f0" } } },
-      scales: {
-        x: { ticks: { color: "#e2e8f0" }, grid: { color: "rgba(30,64,175,0.4)" } },
-        y: { ticks: { color: "#e2e8f0" }, grid: { color: "rgba(30,64,175,0.4)" } }
+      if (password.length < 6) {
+        signupMsg.textContent = "パスワードは6文字以上にしてください。";
+        return;
       }
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+
+      if (error) {
+        console.error(error);
+        signupMsg.textContent = "新規登録に失敗しました：" + (error.message || "");
+        return;
+      }
+
+      alert("新規登録が完了しました。ログインしてください。");
+      signupEmail.value = "";
+      signupPassword.value = "";
     }
-  });
-}
 
 
+    /* ============================
+       認証：ログイン
+    ============================ */
+    async function login() {
+      loginMsg.textContent = "";
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
 
-/* =========================
-   ページ切替
-========================= */
-function showPage(name){
-  document.querySelectorAll("#main > .card").forEach(p=>p.style.display="none");
-  const page=document.getElementById("page-"+name);
-  if(page) page.style.display="block";
+      if (!email || !password) {
+        loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
+        return;
+      }
 
-  document.querySelectorAll("#sidebar .menu-btn").forEach(btn=>{
-    if(btn.dataset.page===name) btn.classList.add("active");
-    else btn.classList.remove("active");
-  });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if(name==="category") renderCategoryPage();
-  if(name==="list") renderList();
-  if(name==="dashboard") renderSummary();
-}
+      if (error) {
+        console.error(error);
+        loginMsg.textContent = "ログインに失敗しました：" + (error.message || "");
+        return;
+      }
 
-/* =========================
-   自動ログアウト（30分）
-========================= */
-function resetAutoLogout(){
-  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
-  autoLogoutTimer=setTimeout(()=>{
-    currentUser=null;
-    sidebar.style.display="none";
-    main.style.display="none";
-    loginScreen.style.display="flex";
-    loginUser.value="";
-    loginPass.value="";
-    alert("30分操作がなかったためログアウトしました。");
-  },30*60*1000);
-}
+      currentUser = data.user;
+      loginUserEmail.textContent = currentUser.email || "ログイン中";
+      appArea.classList.remove("hidden");
+      loginMsg.textContent = "";
 
-["click","mousemove","keydown","scroll"].forEach(ev=>{
-  document.addEventListener(ev,()=>{if(currentUser) resetAutoLogout();},{passive:true});
-});
-/* =========================
-   ログイン
-========================= */
-loginBtn.onclick=async()=>{
-  loginMsg.textContent="";
-  const u=loginUser.value.trim();
-  const p=loginPass.value;
-  const users=loadUsers();
+      // 日付初期化
+      if (!dateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
 
-  if(!u){loginMsg.textContent="IDを入力してください";return;}
-  if(!users[u]){loginMsg.textContent="ユーザーが存在しません";return;}
-  if(users[u].pass!==await sha256(p)){
-    loginMsg.textContent="パスワードが違います";
-    return;
-  }
+      await loadCategories();
+      await loadTransactions();
+      await renderSummary();
+    }
 
-  currentUser=u;
-  loginScreen.style.display="none";
-  regScreen.style.display="none";
-  resetScreen.style.display="none";
-  resetQuestionScreen.style.display="none";
-  resetNewPassScreen.style.display="none";
 
-  sidebar.style.display="flex";
-  main.style.display="block";
+    /* ============================
+       認証：ログアウト
+    ============================ */
+    async function logout() {
+      await supabase.auth.signOut();
+      currentUser = null;
 
-  renderCategoryPage();
-  renderList();
-  renderSummary();
-  showPage("dashboard");
-  resetAutoLogout();
-};
+      appArea.classList.add("hidden");
+      loginUserEmail.textContent = "ログイン中";
 
-/* =========================
-   新規登録（秘密の質問表示）
-========================= */
-questionType.onchange=()=>{
-  if(questionType.value==="A"){
-    questionA.style.display="block";
-    questionB.style.display="none";
-  }else if(questionType.value==="B"){
-    questionA.style.display="none";
-    questionB.style.display="block";
-  }else{
-    questionA.style.display="none";
-    questionB.style.display="none";
-  }
-};
+      listArea.innerHTML = "";
+      sumIncome.textContent = "0";
+      sumExpense.textContent = "0";
+      sumNet.textContent = "0";
+    }
 
-regBtn.onclick=async()=>{
-  regMsg.style.color="var(--danger)";
-  regMsg.textContent="";
-  const u=regUser.value.trim();
-  const p1=regPass1.value;
-  const p2=regPass2.value;
-  const qt=questionType.value;
-  const qa=questionA.value;
-  const qb=questionB.value.trim();
-  const ans=answer.value.trim();
 
-  if(!u){regMsg.textContent="IDを入力してください";return;}
-  if(p1.length<12||!/[A-Z]/.test(p1)||!/[a-z]/.test(p1)||!/[0-9]/.test(p1)){
-    regMsg.textContent="パスワード条件を満たしていません";return;
-  }
-  if(p1!==p2){regMsg.textContent="パスワードが一致しません";return;}
-  if(!qt){regMsg.textContent="質問方式を選択してください";return;}
-  if(qt==="A"&&!qa){regMsg.textContent="質問を選択してください";return;}
-  if(qt==="B"&&!qb){regMsg.textContent="質問を入力してください";return;}
-  if(!ans){regMsg.textContent="答えを入力してください";return;}
+    /* ============================
+       ページ読み込み時：セッション復元
+    ============================ */
+    (async () => {
+      const { data } = await supabase.auth.getSession();
 
-  const users=loadUsers();
-  if(users[u]){regMsg.textContent="このIDは既に使われています";return;}
+      if (data.session && data.session.user) {
+        currentUser = data.session.user;
+        loginUserEmail.textContent = currentUser.email || "ログイン中";
+        appArea.classList.remove("hidden");
 
-  users[u]={
-    pass:await sha256(p1),
-    qType:qt,
-    question:qt==="A"?qa:qb,
-    answer:await sha256(ans)
-  };
-  saveUsers(users);
+        if (!dateInput.value) {
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, "0");
+          const dd = String(today.getDate()).padStart(2, "0");
+          dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
 
-  regMsg.style.color="var(--income)";
-  regMsg.textContent="登録完了しました";
+        await loadCategories();
+        await loadTransactions();
+        await renderSummary();
+      }
+    })();
 
-  setTimeout(()=>{
-    regScreen.style.display="none";
-    loginScreen.style.display="flex";
-  },900);
-};
+    /* ============================
+       カテゴリ読み込み
+    ============================ */
+    async function loadCategories() {
+      if (!currentUser) return;
 
-/* =========================
-   パスワード再設定
-========================= */
-toResetBtn.onclick=()=>{
-  loginScreen.style.display="none";
-  resetScreen.style.display="flex";
-};
-backToLoginFromReset.onclick=()=>{
-  resetScreen.style.display="none";
-  loginScreen.style.display="flex";
-};
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("name", { ascending: true });
 
-resetNext.onclick=()=>{
-  const id=resetId.value.trim();
-  const users=loadUsers();
-  if(!id){resetMsg.textContent="IDを入力してください";return;}
-  if(!users[id]){resetMsg.textContent="ユーザーが存在しません";return;}
-  resetMsg.textContent="";
-  resetScreen.style.display="none";
-  resetQuestion.textContent=users[id].question;
-  resetQuestionScreen.dataset.user=id;
-  resetQuestionScreen.style.display="flex";
-};
+      if (error) {
+        console.error(error);
+        return;
+      }
 
-resetAnswerBtn.onclick=async()=>{
-  const id=resetQuestionScreen.dataset.user;
-  const users=loadUsers();
-  const ans=resetAnswer.value.trim();
-  if(!ans){resetAnswerMsg.textContent="答えを入力してください";return;}
-  if(users[id].answer!==await sha256(ans)){
-    resetAnswerMsg.textContent="答えが違います";
-    return;
-  }
-  resetAnswerMsg.textContent="";
-  resetQuestionScreen.style.display="none";
-  resetNewPassScreen.dataset.user=id;
-  resetNewPassScreen.style.display="flex";
-};
+      categorySelect.innerHTML = "";
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "カテゴリを選択";
+      categorySelect.appendChild(opt);
 
-resetPassBtn.onclick=async()=>{
-  const id=resetNewPassScreen.dataset.user;
-  const p1=newPass1.value;
-  const p2=newPass2.value;
-  if(p1.length<12||!/[A-Z]/.test(p1)||!/[a-z]/.test(p1)||!/[0-9]/.test(p1)){
-    resetPassMsg.textContent="パスワード条件を満たしていません";return;
-  }
-  if(p1!==p2){resetPassMsg.textContent="一致しません";return;}
+      categoryList.innerHTML = "";
 
-  const users=loadUsers();
-  users[id].pass=await sha256(p1);
-  saveUsers(users);
+      data.forEach(cat => {
+        const o = document.createElement("option");
+        o.value = cat.id;
+        o.textContent = cat.name;
+        categorySelect.appendChild(o);
 
-  resetPassMsg.style.color="var(--income)";
-  resetPassMsg.textContent="変更しました";
+        const div = document.createElement("div");
+        div.textContent = cat.name;
+        div.style.display = "flex";
+        div.style.justifyContent = "space-between";
+        div.style.alignItems = "center";
+        div.style.padding = "2px 0";
 
-  setTimeout(()=>{
-    resetNewPassScreen.style.display="none";
-    loginScreen.style.display="flex";
-  },900);
-};
+        const btn = document.createElement("button");
+        btn.textContent = "削除";
+        btn.className = "btn-sub";
+        btn.style.fontSize = "11px";
+        btn.onclick = () => deleteCategory(cat.id);
 
-/* =========================
-   画面遷移ボタン
-========================= */
-document.querySelectorAll("#sidebar .menu-btn[data-page]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const page=btn.dataset.page;
-    showPage(page);
-  });
-});
+        div.appendChild(btn);
+        categoryList.appendChild(div);
+      });
+    }
 
-/* =========================
-   ログアウト
-========================= */
-logoutBtn.onclick=()=>{
-  currentUser=null;
-  sidebar.style.display="none";
-  main.style.display="none";
-  loginScreen.style.display="flex";
-  loginUser.value="";
-  loginPass.value="";
-  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
-};
 
-/* =========================
-   画面遷移ボタン（ログイン⇔登録）
-========================= */
-toRegBtn.onclick=()=>{
-  loginScreen.style.display="none";
-  regScreen.style.display="flex";
-};
-backToLoginFromReg.onclick=()=>{
-  regScreen.style.display="none";
-  loginScreen.style.display="flex";
-};
+    /* ============================
+       カテゴリ追加
+    ============================ */
+    async function addCategory() {
+      if (!currentUser) {
+        alert("先にログインしてください。");
+        return;
+      }
 
-/* =========================
-   初期表示
-========================= */
-window.addEventListener("load",()=>{
-  currentUser=null;
-  sidebar.style.display="none";
-  main.style.display="none";
-  loginScreen.style.display="flex";
-});
-async function login() {
-  const email = loginEmail.value;
-  const password = loginPassword.value;
+      const name = categoryNameInput.value.trim();
+      if (!name) return;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+      const { error } = await supabase
+        .from("categories")
+        .insert({ user_id: currentUser.id, name });
 
-  if (error) {
-    alert("ログイン失敗");
-    return;
-  }
+      if (error) {
+        console.error(error);
+        alert("カテゴリ追加に失敗しました。");
+        return;
+      }
 
-  alert("ログイン成功");
-  renderList();
-  renderSummary();
-}
-async function signup() {
-  const email = signupEmail.value;
-  const password = signupPassword.value;
+      categoryNameInput.value = "";
+      await loadCategories();
+    }
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  });
 
-  if (error) {
-    alert("新規登録に失敗しました");
-    return;
-  }
+    /* ============================
+       カテゴリ削除
+    ============================ */
+    async function deleteCategory(id) {
+      if (!currentUser) return;
+      if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
 
-  alert("新規登録が完了しました。ログインしてください。");
-}
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
 
-</script>
+      if (error) {
+        console.error(error);
+        alert("カテゴリ削除に失敗しました。");
+        return;
+      }
+
+      await loadCategories();
+    }
+
+
+    /* ============================
+       明細読み込み
+    ============================ */
+    async function loadTransactions() {
+      if (!currentUser) return;
+
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("id, date, category_name, memo, amount, type")
+        .eq("user_id", currentUser.id)
+        .order("date", { ascending: true })
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      renderList(data);
+    }
+
+
+    /* ============================
+       明細登録
+    ============================ */
+    async function addTransaction() {
+      if (!currentUser) {
+        alert("先にログインしてください。");
+        return;
+      }
+
+      const date = dateInput.value;
+      const categoryId = categorySelect.value;
+      const memo = memoInput.value.trim();
+      const amount = Number(amountInput.value);
+      const type = document.querySelector('input[name="type"]:checked').value;
+
+      if (!date || !categoryId || !amount) {
+        alert("日付・カテゴリ・金額は必須です。");
+        return;
+      }
+
+      const catOption = categorySelect.options[categorySelect.selectedIndex];
+      const categoryName = catOption ? catOption.textContent : "";
+
+      const { error } = await supabase
+        .from("transactions")
+        .insert({
+          user_id: currentUser.id,
+          date,
+          category_id: categoryId,
+          category_name: categoryName,
+          memo,
+          amount,
+          type
+        });
+
+      if (error) {
+        console.error(error);
+        alert("登録に失敗しました。");
+        return;
+      }
+
+      clearInput(false);
+      await loadTransactions();
+      await renderSummary();
+    }
+
+
+    /* ============================
+       明細削除
+    ============================ */
+    async function deleteTransaction(id) {
+      if (!currentUser) return;
+      if (!confirm("この明細を削除しますか？")) return;
+
+      const { error } = await supabase
+        .from("transactions")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        console.error(error);
+        alert("削除に失敗しました。");
+        return;
+      }
+
+      await loadTransactions();
+      await renderSummary();
+    }
+
+
+    /* ============================
+       一覧描画
+    ============================ */
+    function renderList(rows) {
+      listArea.innerHTML = "";
+
+      if (!rows || rows.length === 0) {
+        listArea.textContent = "データがありません。";
+        return;
+      }
+
+      rows.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+
+        const d = document.createElement("div");
+        d.textContent = r.date;
+
+        const m = document.createElement("div");
+        m.textContent = r.memo || "";
+
+        const c = document.createElement("div");
+        c.textContent = r.category_name || "";
+
+        const a = document.createElement("div");
+        a.className = "list-item-amount " + (r.type === "income" ? "income" : "expense");
+        a.textContent = (r.type === "income" ? "+" : "-") + Number(r.amount).toLocaleString();
+
+        const btn = document.createElement("button");
+        btn.textContent = "削除";
+        btn.className = "btn-sub";
+        btn.style.fontSize = "11px";
+        btn.onclick = () => deleteTransaction(r.id);
+
+        div.appendChild(d);
+        div.appendChild(m);
+        div.appendChild(c);
+        div.appendChild(a);
+        div.appendChild(btn);
+
+        listArea.appendChild(div);
+      });
+    }
+
+
+    /* ============================
+       集計
+    ============================ */
+    async function renderSummary() {
+      if (!currentUser) return;
+
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("amount, type")
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      let income = 0;
+      let expense = 0;
+
+      data.forEach(r => {
+        if (r.type === "income") income += Number(r.amount) || 0;
+        else expense += Number(r.amount) || 0;
+      });
+
+      sumIncome.textContent = income.toLocaleString();
+      sumExpense.textContent = expense.toLocaleString();
+      sumNet.textContent = (income - expense).toLocaleString();
+    }
+
+
+    /* ============================
+       入力クリア
+    ============================ */
+    function clearInput(clearDate = false) {
+      if (clearDate) dateInput.value = "";
+      memoInput.value = "";
+      amountInput.value = "";
+    }
+
+  </script>
 </body>
 </html>
-
