@@ -173,6 +173,14 @@ tr:hover td{
 </head>
 
 <body>
+<!-- ▼▼▼ 新規登録フォーム（ログインフォームのすぐ下に貼る） ▼▼▼ -->
+<div id="signupArea" style="margin:20px 0;">
+  <input id="signupEmail" type="email" placeholder="新規登録メールアドレス">
+  <input id="signupPassword" type="password" placeholder="新規登録パスワード">
+  <button onclick="signup()">新規登録</button>
+</div>
+<!-- ▲▲▲ 新規登録フォームここまで ▲▲▲ -->
+
 <div id="loginArea" style="margin:20px 0;">
   <input id="loginEmail" type="email" placeholder="メールアドレス">
   <input id="loginPassword" type="password" placeholder="パスワード">
@@ -934,6 +942,25 @@ async function login() {
   renderList();
   renderSummary();
 }
+
+// ▼▼▼ 新規登録処理（</script> の直前に貼る） ▼▼▼
+async function signup() {
+  const email = signupEmail.value;
+  const password = signupPassword.value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("新規登録に失敗しました");
+    return;
+  }
+
+  alert("新規登録が完了しました。ログインしてください。");
+}
+// ▲▲▲ 新規登録処理ここまで ▲▲▲
 
 </script>
 
