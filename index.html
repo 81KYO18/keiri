@@ -1,1045 +1,1519 @@
-<!-- Part1/5 -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>経理サイト</title>
-  <style>
-    :root{
-      --bg:#020617;--panel:#0f172a;--border:#1f2937;--accent:#38bdf8;
-      --accent-soft:rgba(56,189,248,0.12);--danger:#f97373;--text:#e5e7eb;
-      --sub:#9ca3af;--income:#4ade80;--expense:#f97373;--radius:12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;padding:20px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
-      background:radial-gradient(circle at top,#0f172a 0,#020617 55%,#000 100%);color:var(--text);
-      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-    }
-    .wrap{max-width:1200px;margin:0 auto}
-    .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    .title{font-size:20px;letter-spacing:.06em}
-    .panel{
-      background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(15,23,42,.9));
-      border:1px solid rgba(148,163,184,.12);border-radius:var(--radius);padding:14px;
-      box-shadow:0 18px 40px rgba(2,6,23,.6);backdrop-filter:blur(6px);
-    }
-    .auth-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-    .auth-panel{flex:1 1 360px}
-    .panel-title{font-size:13px;margin-bottom:8px;color:var(--sub);letter-spacing:.06em}
-    input,select,button,textarea{font-size:14px}
-    input,select,textarea{
-      width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
-      background:#020617;color:var(--text);
-    }
-    .btn-main{padding:10px 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--text);cursor:pointer}
-    .btn-sub{padding:8px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.18);background:#020617;color:var(--sub);cursor:pointer}
-    .auth-msg{margin-top:8px;font-size:13px;color:var(--danger);min-height:20px}
-    .muted{font-size:12px;color:var(--sub);margin-top:6px}
-    .link{color:var(--accent);text-decoration:underline;cursor:pointer}
-    .hidden{display:none!important}
-    .center{display:flex;align-items:center;justify-content:center}
-    .small{font-size:12px;color:var(--sub)}
-    .form-row{display:flex;gap:8px;align-items:center;margin-top:8px}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Keiri — Ultimate Secure (統合 Part1-7)</title>
+
+<!-- CDN: Supabase と Chart.js -->
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Styles (統合) -->
+<style>
+:root{
+  --bg:#041022;--panel:#0b1220;--muted:#9aa6b2;--text:#e6eef6;--accent:#38bdf8;
+  --danger:#ff6b6b;--success:#4ade80;--radius:12px;--gap:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;padding:20px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+  background:linear-gradient(180deg,#041022 0%,#020612 60%);color:var(--text);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+.container{max-width:1200px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column}
+.brand h1{margin:0;font-size:18px;letter-spacing:.06em}
+.brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.controls{display:flex;gap:8px;align-items:center}
+.panel{background:linear-gradient(180deg,var(--panel),#071226);border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+.grid{display:grid;grid-template-columns:1fr 1fr 0.9fr;gap:14px}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.auth-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.auth-card{flex:1 1 360px;min-width:260px}
+.label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text);font-size:14px}
+.row{display:flex;gap:8px;align-items:center}
+.btn{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);cursor:pointer}
+.btn-primary{background:linear-gradient(90deg,var(--accent),#60a5fa);color:#012;box-shadow:0 6px 18px rgba(56,189,248,0.08);border:none}
+.btn-ghost{background:transparent;color:var(--muted)}
+.small{font-size:12px;color:var(--muted)}
+.link{color:var(--accent);text-decoration:underline;cursor:pointer}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+.msg{margin-top:8px;min-height:20px;font-size:13px}
+.msg.error{color:var(--danger)}
+.msg.ok{color:var(--success)}
+.hidden{display:none!important}
+.footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:rgba(0,0,0,0.6);color:var(--text);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);z-index:9999}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.list-item{display:grid;grid-template-columns:110px 1fr 140px 120px 80px;gap:8px;padding:10px;border-bottom:1px solid rgba(255,255,255,0.02);align-items:center}
+.list-item:nth-child(2n){background:rgba(255,255,255,0.01)}
+.list-item-amount.income{color:var(--success)}
+.list-item-amount.expense{color:var(--danger)}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="header">
-      <div class="title">極密アプリ Ultimate Secure</div>
-      <div class="small">安全に管理する家計簿</div>
+<div class="container" id="keiriAppRoot">
+  <div class="header">
+    <div class="brand">
+      <h1>Keiri — Ultimate Secure</h1>
+      <p>個人向けクラウド家計簿（Supabase連携）</p>
     </div>
-
-    <div class="auth-row" id="authRow">
-      <div class="panel auth-panel" id="signupPanel" aria-labelledby="signupTitle">
-        <div class="panel-title" id="signupTitle">新規登録</div>
-        <label class="sr-only" for="signupEmail">メールアドレス</label>
-        <input id="signupEmail" type="email" placeholder="メールアドレス" autocomplete="email" />
-        <label class="sr-only" for="signupPassword">パスワード</label>
-        <input id="signupPassword" type="password" placeholder="パスワード（12文字以上推奨）" autocomplete="new-password" />
-        <label class="sr-only" for="signupPasswordConfirm">パスワード確認</label>
-        <input id="signupPasswordConfirm" type="password" placeholder="パスワード確認" autocomplete="new-password" />
-        <div class="form-row">
-          <button id="signupBtn" class="btn-main" type="button">新規登録</button>
-          <button id="signupClear" class="btn-sub" type="button">クリア</button>
-        </div>
-        <div id="signupMsg" class="auth-msg" aria-live="polite"></div>
-        <div class="muted">パスワードは長さを重視してください。パスワードマネージャ推奨。</div>
-      </div>
-
-      <div class="panel auth-panel" id="loginPanel" aria-labelledby="loginTitle">
-        <div class="panel-title" id="loginTitle">ログイン</div>
-        <label class="sr-only" for="loginEmail">メールアドレス</label>
-        <input id="loginEmail" type="email" placeholder="メールアドレス" autocomplete="email" />
-        <label class="sr-only" for="loginPassword">パスワード</label>
-        <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password" />
-        <div class="form-row">
-          <button id="loginBtn" class="btn-main" type="button">ログイン</button>
-          <button id="loginClear" class="btn-sub" type="button">クリア</button>
-        </div>
-        <div id="loginMsg" class="auth-msg" aria-live="polite"></div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-          <a id="forgotLink" class="link" href="#" role="link">IDまたはパスワードを忘れた方はこちら</a>
-          <a id="helpLink" class="small" href="#" role="link">ヘルプ</a>
-        </div>
-
-        <div id="loginHints" class="muted" style="margin-top:8px">
-          <div id="hintWrongField" class="hidden">入力欄を確認してください。</div>
-          <div id="hintCheckEmail" class="hidden">メールアドレスが正しいか確認してください。</div>
-          <div id="hintCheckPassword" class="hidden">パスワードが正しいか確認してください。</div>
-          <div id="hintConfirmEmail" class="hidden">登録後に確認メールが必要です。メールを確認してください。</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="appArea" class="hidden" aria-hidden="true"></div>
-
+    <div class="controls small">準備: Supabase URL と anon key を入力して「Supabase を初期化」</div>
   </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <script>
-    // DOM
-    const signupEmail = document.getElementById("signupEmail");
-    const signupPassword = document.getElementById("signupPassword");
-    const signupPasswordConfirm = document.getElementById("signupPasswordConfirm");
-    const signupBtn = document.getElementById("signupBtn");
-    const signupClear = document.getElementById("signupClear");
-    const signupMsg = document.getElementById("signupMsg");
-
-    const loginEmail = document.getElementById("loginEmail");
-    const loginPassword = document.getElementById("loginPassword");
-    const loginBtn = document.getElementById("loginBtn");
-    const loginClear = document.getElementById("loginClear");
-    const loginMsg = document.getElementById("loginMsg");
-
-    const forgotLink = document.getElementById("forgotLink");
-    const helpLink = document.getElementById("helpLink");
-
-    const hintWrongField = document.getElementById("hintWrongField");
-    const hintCheckEmail = document.getElementById("hintCheckEmail");
-    const hintCheckPassword = document.getElementById("hintCheckPassword");
-    const hintConfirmEmail = document.getElementById("hintConfirmEmail");
-
-    // Supabase client placeholder (replace key in later parts)
-    const supabaseUrl = ""; // set in later part
-    const supabaseKey = ""; // set in later part
-    let supabase = null;
-
-    // Utility: clear hints
-    function clearHints() {
-      [hintWrongField, hintCheckEmail, hintCheckPassword, hintConfirmEmail].forEach(el => el.classList.add("hidden"));
-    }
-
-    // Map auth error to user-friendly hints
-    function showLoginErrorHints(err) {
-      clearHints();
-      if (!err) return;
-      const msg = (err.message || "").toLowerCase();
-      loginMsg.textContent = err.message || "認証に失敗しました。";
-      // common patterns
-      if (msg.includes("invalid") || msg.includes("format") || msg.includes("email")) {
-        hintCheckEmail.classList.remove("hidden");
-      }
-      if (msg.includes("password") || msg.includes("invalid login") || msg.includes("invalid credentials")) {
-        hintCheckPassword.classList.remove("hidden");
-      }
-      if (msg.includes("confirm") || msg.includes("email not confirmed") || msg.includes("verification")) {
-        hintConfirmEmail.classList.remove("hidden");
-      }
-      // fallback
-      if (!hintCheckEmail.classList.contains("hidden") || !hintCheckPassword.classList.contains("hidden") || !hintConfirmEmail.classList.contains("hidden")) {
-        // at least one specific hint shown
-      } else {
-        hintWrongField.classList.remove("hidden");
-      }
-    }
-
-    // Prevent double clicks and ensure buttons enabled
-    function setButtonState(btn, enabled) {
-      btn.disabled = !enabled;
-      if (enabled) btn.classList.remove("disabled");
-      else btn.classList.add("disabled");
-    }
-
-    // Basic client-side password validation for signup
-    function validatePasswordClient(pw, confirm) {
-      const minLen = 12;
-      if (!pw || pw.length < minLen) return { ok:false, msg:`パスワードは最低 ${minLen} 文字必要です` };
-      if (pw !== confirm) return { ok:false, msg:"パスワード確認が一致しません" };
-      return { ok:true };
-    }
-
-    // Attach simple handlers (actual auth functions implemented in later parts)
-    signupBtn.addEventListener("click", async () => {
-      signupMsg.textContent = "";
-      const email = signupEmail.value.trim();
-      const pw = signupPassword.value;
-      const confirm = signupPasswordConfirm.value;
-      const v = validatePasswordClient(pw, confirm);
-      if (!v.ok) { signupMsg.textContent = v.msg; return; }
-      if (!supabase) {
-        signupMsg.textContent = "システム未初期化（後で再試行してください）。";
-        return;
-      }
-      setButtonState(signupBtn, false);
-      try {
-        const res = await supabase.auth.signUp({ email, password: pw });
-        if (res.error) throw res.error;
-        signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
-        signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
-      } catch (err) {
-        signupMsg.textContent = "新規登録に失敗しました：" + (err.message || JSON.stringify(err));
-      } finally {
-        setButtonState(signupBtn, true);
-      }
-    });
-
-    signupClear.addEventListener("click", () => {
-      signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = ""; signupMsg.textContent = "";
-    });
-
-    loginBtn.addEventListener("click", async () => {
-      loginMsg.textContent = ""; clearHints();
-      const email = loginEmail.value.trim();
-      const pw = loginPassword.value;
-      if (!email || !pw) {
-        loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
-        return;
-      }
-      if (!supabase) {
-        loginMsg.textContent = "システム未初期化（後で再試行してください）。";
-        return;
-      }
-      setButtonState(loginBtn, false);
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw });
-        if (error) throw error;
-        // successful login will be handled in later parts (session restore and UI)
-        loginMsg.textContent = "";
-        // placeholder: show success briefly
-        loginMsg.textContent = "ログイン成功（処理を続行）";
-      } catch (err) {
-        showLoginErrorHints(err);
-      } finally {
-        setButtonState(loginBtn, true);
-      }
-    });
-
-    loginClear.addEventListener("click", () => {
-      loginEmail.value = ""; loginPassword.value = ""; loginMsg.textContent = ""; clearHints();
-    });
-
-    // Forgot link handler (will open modal or navigate in later parts)
-    forgotLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      // simple flow: open password recovery URL or show modal (implemented later)
-      window.alert("ID/パスワードを忘れた場合の手順を表示します（次のパートで詳細を実装）。");
-    });
-
-    helpLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      window.alert("ヘルプを表示します（次のパートで詳細を実装）。");
-    });
-
-    // Expose a small init function for later parts to set supabase client
-    window.__app_init_supabase = function(url, key) {
-      try {
-        const cleanKey = (key || "").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
-        const cleanUrl = (url || "").trim();
-        if (!cleanUrl || !cleanKey) {
-          console.warn("supabase init: missing url or key");
-          return false;
-        }
-        supabase = window.supabase.createClient(cleanUrl, cleanKey);
-        console.log("supabase initialized");
-        return true;
-      } catch (e) {
-        console.error("supabase init error", e);
-        return false;
-      }
-    };
-
-    // quick sanity log
-    console.log("Part1 loaded");
-  </script>
-<!-- Part2/5 -->
-<div id="appArea" class="hidden" aria-hidden="true">
-  <div class="logout-row">
-    <div class="badge" id="loginUserLabel"><span class="badge-dot" aria-hidden="true"></span><span id="loginUserEmail">ログイン中</span></div>
-    <button id="logoutBtn" class="btn-sub" type="button">ログアウト</button>
+  <!-- Supabase 設定パネル -->
+  <div id="keiriConfigPanel" class="panel" style="margin-bottom:14px">
+    <div class="label">Supabase 設定</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <input id="supabaseUrlInput" class="input" type="text" placeholder="Supabase URL（例: https://xxxx.supabase.co）" style="flex:1 1 420px" />
+      <input id="supabaseKeyInput" class="input" type="text" placeholder="anon key（公開用 anon key）" style="flex:1 1 420px" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button id="initSupabaseBtn" class="btn btn-primary" type="button">Supabase を初期化</button>
+      <button id="clearSupabaseBtn" class="btn btn-ghost" type="button">クリア</button>
+      <button id="showAdvancedBtn" class="btn btn-ghost" type="button">詳細診断</button>
+    </div>
+    <div id="supabaseMsg" class="msg" aria-live="polite"></div>
+    <pre id="supabaseDiag" class="hint hidden" style="white-space:pre-wrap;margin-top:8px"></pre>
   </div>
 
-  <div class="app-grid">
-    <div class="panel" id="inputPanel" aria-labelledby="inputTitle">
-      <div class="panel-title" id="inputTitle">入力</div>
-
-      <div class="field-row">
-        <input id="dateInput" type="date" aria-label="日付" />
-        <select id="categorySelect" aria-label="カテゴリ"></select>
+  <!-- Authentication row -->
+  <div class="auth-row" id="authRow">
+    <!-- Signup -->
+    <div class="panel auth-card" id="signupCard" aria-labelledby="signupTitle">
+      <div id="signupTitle" class="label">新規登録</div>
+      <label class="sr-only" for="signupEmail">メールアドレス</label>
+      <input id="signupEmail" class="input" type="email" placeholder="メールアドレス" autocomplete="email" />
+      <label class="sr-only" for="signupPassword">パスワード</label>
+      <input id="signupPassword" class="input" type="password" placeholder="パスワード（12文字以上推奨）" autocomplete="new-password" style="margin-top:8px" />
+      <label class="sr-only" for="signupPasswordConfirm">パスワード確認</label>
+      <input id="signupPasswordConfirm" class="input" type="password" placeholder="パスワード確認" autocomplete="new-password" style="margin-top:8px" />
+      <div class="row" style="margin-top:10px">
+        <button id="signupBtn" class="btn btn-primary" type="button">アカウント作成</button>
+        <button id="signupClear" class="btn btn-ghost" type="button">クリア</button>
       </div>
-
-      <div class="field-row">
-        <input id="memoInput" type="text" placeholder="メモ" aria-label="メモ" />
-      </div>
-
-      <div class="field-row">
-        <input id="amountInput" type="number" placeholder="金額" aria-label="金額" min="0" step="1" />
-        <label class="small"><input type="radio" name="type" value="expense" checked /> 支出</label>
-        <label class="small"><input type="radio" name="type" value="income" /> 収入</label>
-      </div>
-
-      <div class="field-row">
-        <button id="addTxBtn" class="btn-main" type="button">登録</button>
-        <button id="clearInputBtn" class="btn-sub" type="button">クリア</button>
-      </div>
-
-      <hr style="border:none;border-top:1px solid rgba(31,41,55,.9);margin:10px 0" />
-
-      <div class="panel-title">カテゴリ管理</div>
-      <div class="field-row">
-        <input id="categoryNameInput" type="text" placeholder="カテゴリ名（例：食費）" />
-        <button id="addCategoryBtn" class="btn-sub" type="button">追加</button>
-      </div>
-      <div id="categoryList" style="font-size:13px;color:var(--sub);max-height:140px;overflow:auto"></div>
+      <div id="signupMsg" class="msg" aria-live="polite"></div>
+      <div class="hint">パスワードは長さを重視。パスワードマネージャ推奨。</div>
     </div>
 
-    <div class="panel" id="listPanel" aria-labelledby="listTitle">
-      <div class="panel-title" id="listTitle">一覧</div>
-      <div class="list" id="listArea" role="list"></div>
+    <!-- Login -->
+    <div class="panel auth-card" id="loginCard" aria-labelledby="loginTitle">
+      <div id="loginTitle" class="label">ログイン</div>
+      <label class="sr-only" for="loginEmail">メールアドレス</label>
+      <input id="loginEmail" class="input" type="email" placeholder="メールアドレス" autocomplete="email" />
+      <label class="sr-only" for="loginPassword">パスワード</label>
+      <input id="loginPassword" class="input" type="password" placeholder="パスワード" autocomplete="current-password" style="margin-top:8px" />
+      <div class="row" style="margin-top:10px">
+        <button id="loginBtn" class="btn btn-primary" type="button">ログイン</button>
+        <button id="loginClear" class="btn btn-ghost" type="button">クリア</button>
+      </div>
+      <div id="loginMsg" class="msg" aria-live="polite"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <a id="forgotLink" class="link" href="#" role="link">IDまたはパスワードを忘れた方はこちら</a>
+        <a id="helpLink" class="small" href="#" role="link">ヘルプ</a>
+      </div>
+
+      <div id="loginHints" class="hint" style="margin-top:8px">
+        <div id="hintWrongField" class="hidden">入力欄を確認してください。</div>
+        <div id="hintCheckEmail" class="hidden">メールアドレスの形式を確認してください。</div>
+        <div id="hintCheckPassword" class="hidden">パスワードが正しいか確認してください。</div>
+        <div id="hintConfirmEmail" class="hidden">登録後に確認メールが必要です。メールを確認してください。</div>
+        <div id="hintNetwork" class="hidden">ネットワーク接続を確認してください。</div>
+      </div>
     </div>
 
-    <div class="panel" id="summaryPanel" aria-labelledby="summaryTitle">
-      <div class="panel-title" id="summaryTitle">集計</div>
-      <div class="summary-row" id="summaryArea" aria-live="polite">
-        <span><strong>収入合計</strong><span id="sumIncome">0</span></span>
-        <span><strong>支出合計</strong><span id="sumExpense">0</span></span>
-        <span><strong>差引</strong><span id="sumNet">0</span></span>
+    <!-- System status / quick diag -->
+    <div class="panel" style="min-width:220px;flex:0 0 220px">
+      <div class="label">システム状態</div>
+      <div id="sysStatus" class="small">未初期化</div>
+      <div style="margin-top:10px">
+        <button id="diagBtn" class="btn btn-ghost" type="button">診断を実行</button>
+      </div>
+      <div id="diagMsg" class="msg small" style="margin-top:8px;white-space:pre-wrap"></div>
+    </div>
+  </div>
+
+  <!-- Forgot modal -->
+  <div id="forgotModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="forgotTitle" style="position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999">
+    <div class="panel" style="width:480px;max-width:94%;padding:16px">
+      <div class="panel-title" id="forgotTitle">IDまたはパスワードを忘れた方</div>
+      <p class="hint small" style="margin-top:6px">登録済みのメールアドレスを入力してください。パスワード再設定用のメールを送信します。</p>
+      <input id="forgotEmail" class="input" type="email" placeholder="登録メールアドレス" style="margin-top:8px" />
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button id="forgotSendBtn" class="btn btn-primary" type="button">送信</button>
+        <button id="forgotCloseBtn" class="btn btn-ghost" type="button">閉じる</button>
+      </div>
+      <div id="forgotMsg" class="msg small" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- App UI (hidden until login) -->
+  <div id="keiriAppUI" class="hidden">
+    <div class="panel" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong id="userLabel">ログイン中</strong></div>
+        <div>
+          <button id="logoutBtn" class="btn btn-ghost" type="button">ログアウト</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-bottom:14px">
+      <!-- Input / Categories -->
+      <div class="panel" id="inputPanel">
+        <div class="label">入力</div>
+        <div class="row" style="margin-top:8px">
+          <input id="dateInput" class="input" type="date" />
+          <select id="categorySelect" class="input" style="max-width:220px"></select>
+        </div>
+        <input id="memoInput" class="input" type="text" placeholder="メモ" style="margin-top:8px" />
+        <div class="row" style="margin-top:8px">
+          <input id="amountInput" class="input" type="number" placeholder="金額" style="max-width:220px" />
+          <label class="small"><input type="radio" name="type" value="expense" checked /> 支出</label>
+          <label class="small"><input type="radio" name="type" value="income" /> 収入</label>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="addTxBtn" class="btn btn-primary">登録</button>
+          <button id="clearInputBtn" class="btn btn-ghost">クリア</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0" />
+
+        <div class="label">カテゴリ管理</div>
+        <div class="row" style="margin-top:8px">
+          <input id="categoryNameInput" class="input" type="text" placeholder="カテゴリ名（例：食費）" />
+          <button id="addCategoryBtn" class="btn btn-ghost">追加</button>
+        </div>
+        <div id="categoryList" class="hint" style="margin-top:8px;max-height:140px;overflow:auto"></div>
+      </div>
+
+      <!-- List -->
+      <div class="panel" id="listPanel">
+        <div class="label">一覧</div>
+        <div id="listArea" style="margin-top:8px;max-height:520px;overflow:auto"></div>
+      </div>
+
+      <!-- Summary / Chart -->
+      <div class="panel" id="summaryPanel">
+        <div class="label">集計</div>
+        <div id="summaryArea" style="margin-top:8px">
+          <div class="small">収入合計: <strong id="sumIncome">0</strong></div>
+          <div class="small" style="margin-top:6px">支出合計: <strong id="sumExpense">0</strong></div>
+          <div class="small" style="margin-top:6px">差引: <strong id="sumNet">0</strong></div>
+        </div>
+        <div style="margin-top:12px">
+          <canvas id="chartMonthly" width="300" height="200" style="width:100%;height:200px;background:transparent"></canvas>
+        </div>
+        <div style="margin-top:10px">
+          <button id="exportCsvBtn" class="btn btn-ghost">CSV エクスポート</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <div class="footer">© Keiri</div>
 </div>
 
-<!-- Forgot / Reset Modal -->
-<div id="forgotModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="forgotTitle" style="position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999">
-  <div class="panel" style="width:420px;max-width:90%;padding:16px">
-    <div class="panel-title" id="forgotTitle">IDまたはパスワードを忘れた方</div>
-    <p class="muted small">登録済みのメールアドレスを入力してください。パスワード再設定用のメールを送信します。</p>
-    <input id="forgotEmail" type="email" placeholder="登録メールアドレス" style="margin-top:8px" />
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button id="forgotSendBtn" class="btn-main" type="button">送信</button>
-      <button id="forgotCloseBtn" class="btn-sub" type="button">閉じる</button>
-    </div>
-    <div id="forgotMsg" class="muted small" style="margin-top:8px"></div>
-  </div>
-</div>
-
+<!-- Part1 helpers -->
 <script>
-  // DOM references for app area
-  const logoutBtn = document.getElementById("logoutBtn");
-  const loginUserEmail = document.getElementById("loginUserEmail");
+(function(){
+  window.__keiri_dom = window.__keiri_dom || {};
+  ['signupEmail','signupPassword','signupPasswordConfirm','signupBtn','signupClear','signupMsg',
+   'loginEmail','loginPassword','loginBtn','loginClear','loginMsg','forgotLink','helpLink',
+   'sysStatus','diagBtn','diagMsg','supabaseUrlInput','supabaseKeyInput','initSupabaseBtn','supabaseMsg'].forEach(id=>{
+    window.__keiri_dom[id] = document.getElementById(id);
+  });
 
-  const dateInput = document.getElementById("dateInput");
-  const categorySelect = document.getElementById("categorySelect");
-  const memoInput = document.getElementById("memoInput");
-  const amountInput = document.getElementById("amountInput");
-  const addTxBtn = document.getElementById("addTxBtn");
-  const clearInputBtn = document.getElementById("clearInputBtn");
+  window.__keiri_showToast = function(msg, timeout=4000){
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    setTimeout(()=>{ t.classList.add('hidden'); }, timeout);
+  };
 
-  const categoryNameInput = document.getElementById("categoryNameInput");
-  const addCategoryBtn = document.getElementById("addCategoryBtn");
-  const categoryList = document.getElementById("categoryList");
+  document.addEventListener('submit', (e)=>{ e.preventDefault(); });
 
-  const listArea = document.getElementById("listArea");
-  const sumIncome = document.getElementById("sumIncome");
-  const sumExpense = document.getElementById("sumExpense");
-  const sumNet = document.getElementById("sumNet");
+  console.log('Keiri Part1 loaded: UI and styles ready');
+})();
+</script>
 
-  // Forgot modal DOM
-  const forgotModal = document.getElementById("forgotModal");
-  const forgotEmail = document.getElementById("forgotEmail");
-  const forgotSendBtn = document.getElementById("forgotSendBtn");
-  const forgotCloseBtn = document.getElementById("forgotCloseBtn");
-  const forgotMsg = document.getElementById("forgotMsg");
+<!-- Part2: Supabase 初期化 -->
+<script>
+(function(){
+  const urlInput = document.getElementById('supabaseUrlInput');
+  const keyInput = document.getElementById('supabaseKeyInput');
+  const initBtn = document.getElementById('initSupabaseBtn');
+  const clearBtn = document.getElementById('clearSupabaseBtn');
+  const showAdvanced = document.getElementById('showAdvancedBtn');
+  const msgEl = document.getElementById('supabaseMsg');
+  const diagEl = document.getElementById('supabaseDiag');
+  const sysStatus = document.getElementById('sysStatus');
 
-  // Supabase client (initialized via Part1's __app_init_supabase)
-  let supabase = window.supabase || null;
+  function cleanKey(s){ return (s||'').replace(/[\u200B-\u200D\uFEFF]/g,'').trim(); }
+  function cleanUrl(s){ return (s||'').trim(); }
+
+  function setClient(client){
+    try {
+      window.__keiri_supabase = client;
+      window.__keiri_getClient = function(){ return window.__keiri_supabase; };
+      if (sysStatus) sysStatus.textContent = 'Supabase 初期化済み';
+      return true;
+    } catch(e){
+      console.error('setClient error', e);
+      return false;
+    }
+  }
+
+  async function connectivityCheck(client, timeoutMs = 7000){
+    if (!client) throw new Error('client missing');
+    const controller = new AbortController();
+    const id = setTimeout(()=>controller.abort(), timeoutMs);
+    try {
+      const res = await client.auth.getSession({ signal: controller.signal });
+      clearTimeout(id);
+      return res;
+    } catch (err) {
+      clearTimeout(id);
+      throw err;
+    }
+  }
+
+  initBtn.addEventListener('click', async () => {
+    msgEl.textContent = ''; diagEl.classList.add('hidden'); diagEl.textContent = '';
+    const url = cleanUrl(urlInput.value);
+    const key = cleanKey(keyInput.value);
+    if (!url || !key) { msgEl.textContent = 'Supabase URL と anon key を入力してください。'; msgEl.className='msg error'; return; }
+    initBtn.disabled = true; initBtn.style.opacity = '0.6';
+    try {
+      const client = (window.supabase && typeof window.supabase.createClient === 'function')
+        ? window.supabase.createClient(url, key)
+        : null;
+      if (!client) throw new Error('Supabase ライブラリが読み込まれていません。CDN を確認してください。');
+      try {
+        await connectivityCheck(client, 7000);
+        setClient(client);
+        msgEl.textContent = 'Supabase に接続できました。';
+        msgEl.className = 'msg ok';
+        if (typeof window.__keiri_afterInit === 'function') {
+          try { await window.__keiri_afterInit(client); } catch(e){ console.warn(e); }
+        }
+      } catch (err) {
+        console.error('connectivityCheck error', err);
+        msgEl.textContent = '接続に失敗しました。CORS 設定、URL、anon key を確認してください。';
+        msgEl.className = 'msg error';
+        diagEl.classList.remove('hidden');
+        diagEl.textContent = buildDiagMessage(err, url, key);
+      }
+    } catch (err) {
+      console.error('init error', err);
+      msgEl.textContent = '初期化に失敗しました: ' + (err.message || err);
+      msgEl.className = 'msg error';
+    } finally {
+      initBtn.disabled = false; initBtn.style.opacity = '1';
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    urlInput.value = ''; keyInput.value = ''; msgEl.textContent = ''; diagEl.classList.add('hidden'); diagEl.textContent = '';
+  });
+
+  showAdvanced.addEventListener('click', () => {
+    if (diagEl.classList.contains('hidden')) diagEl.classList.remove('hidden'); else diagEl.classList.add('hidden');
+  });
+
+  function buildDiagMessage(err, url, key){
+    const lines = [];
+    lines.push('--- 詳細診断 ---');
+    if (!navigator.onLine) lines.push('ネットワーク: オフラインです。接続を確認してください。');
+    else lines.push('ネットワーク: オンライン');
+    lines.push('Supabase URL: ' + (url || '(未入力)'));
+    lines.push('anon key: ' + (key ? '(入力済み)' : '(未入力)'));
+    if (err && err.message) {
+      lines.push('エラー: ' + err.message);
+    } else {
+      lines.push('エラー: 接続がタイムアウトまたは拒否されました。');
+    }
+    lines.push('');
+    lines.push('確認事項:');
+    lines.push('- Supabase プロジェクトの「API」タブで URL と anon key を再確認してください。');
+    lines.push('- Supabase の「設定 > API > Allowed origins (CORS)」にこのサイトのオリジンを追加してください。');
+    lines.push('- anon key は公開用の anon key を使用してください（サービスロールキーは絶対にブラウザに置かないでください）。');
+    lines.push('- ブラウザの拡張やプロキシが通信を妨げていないか確認してください。');
+    lines.push('- サーバ側でメール確認が必須の場合、登録後に確認メールを受け取る必要があります。');
+    return lines.join('\n');
+  }
+
+  (function autoFillFromGlobals(){
+    try {
+      const u = window.SUPABASE_URL || window.__SUPABASE_URL || '';
+      const k = window.SUPABASE_KEY || window.__SUPABASE_KEY || '';
+      if (u) urlInput.value = u;
+      if (k) keyInput.value = k;
+    } catch(e){}
+  })();
+
+  console.log('Keiri Part2 loaded: Supabase init UI ready');
+})();
+</script>
+
+<!-- Part3: Auth flows -->
+<script>
+(function(){
+  const loginBtn = document.getElementById('loginBtn');
+  const loginClear = document.getElementById('loginClear');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginMsg = document.getElementById('loginMsg');
+
+  const signupBtn = document.getElementById('signupBtn');
+  const signupClear = document.getElementById('signupClear');
+  const signupEmail = document.getElementById('signupEmail');
+  const signupPassword = document.getElementById('signupPassword');
+  const signupPasswordConfirm = document.getElementById('signupPasswordConfirm');
+  const signupMsg = document.getElementById('signupMsg');
+
+  const forgotLink = document.getElementById('forgotLink');
+  const forgotModal = document.getElementById('forgotModal');
+  const forgotEmail = document.getElementById('forgotEmail');
+  const forgotSendBtn = document.getElementById('forgotSendBtn');
+  const forgotCloseBtn = document.getElementById('forgotCloseBtn');
+  const forgotMsg = document.getElementById('forgotMsg');
+
+  const sysStatus = document.getElementById('sysStatus');
+  const diagMsg = document.getElementById('diagMsg');
+
+  let client = null;
   let currentUser = null;
 
-  // Utility: set today's date if empty
-  function ensureTodayDate() {
-    if (!dateInput.value) {
-      const t = new Date();
-      dateInput.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
-    }
+  function setBtn(btn, enabled){ if (!btn) return; btn.disabled = !enabled; btn.style.opacity = enabled ? '1' : '0.6'; }
+  function showToast(msg, t=4000){ if (window.__keiri_showToast) window.__keiri_showToast(msg,t); else alert(msg); }
+  function clearLoginHints(){ ['hintWrongField','hintCheckEmail','hintCheckPassword','hintConfirmEmail','hintNetwork'].forEach(id=>{ const e=document.getElementById(id); if(e) e.classList.add('hidden'); }); }
+
+  function friendlyAuthMessage(err){
+    if (!err) return '認証に失敗しました。';
+    const m = (err.message || '').toLowerCase();
+    if (m.includes('invalid') && m.includes('email')) return 'メールアドレスの形式を確認してください。';
+    if (m.includes('invalid') && m.includes('password')) return 'パスワードが正しくありません。';
+    if (m.includes('not confirmed') || m.includes('confirm') || m.includes('verification')) return 'メールアドレスの確認が必要です。確認メールをチェックしてください。';
+    if (m.includes('rate limit') || m.includes('too many')) return '試行回数が多すぎます。しばらく待ってから再試行してください。';
+    if (m.includes('network') || m.includes('timeout') || m.includes('failed to fetch')) return 'ネットワーク接続を確認してください。';
+    return err.message || '認証に失敗しました。';
   }
 
-  // Button state helpers
-  function setBtn(btn, enabled) {
-    btn.disabled = !enabled;
-    if (!enabled) btn.style.opacity = "0.6";
-    else btn.style.opacity = "1";
+  function showLoginErrorHints(err){
+    clearLoginHints();
+    if (!err) return;
+    const m = (err.message || '').toLowerCase();
+    loginMsg.textContent = err.message || '認証に失敗しました。';
+    if (m.includes('network') || m.includes('timeout') || m.includes('failed to fetch')) {
+      const el = document.getElementById('hintNetwork'); if (el) el.classList.remove('hidden');
+    }
+    if (m.includes('invalid') && m.includes('email')) { const el=document.getElementById('hintCheckEmail'); if(el) el.classList.remove('hidden'); }
+    if (m.includes('password') || m.includes('invalid login') || m.includes('invalid credentials')) { const el=document.getElementById('hintCheckPassword'); if(el) el.classList.remove('hidden'); }
+    if (m.includes('confirm') || m.includes('not confirmed') || m.includes('verification')) { const el=document.getElementById('hintConfirmEmail'); if(el) el.classList.remove('hidden'); }
+    const any = ['hintNetwork','hintCheckEmail','hintCheckPassword','hintConfirmEmail'].some(id=>{ const e=document.getElementById(id); return e && !e.classList.contains('hidden'); });
+    if (!any) { const el=document.getElementById('hintWrongField'); if(el) el.classList.remove('hidden'); }
   }
 
-  // Event wiring
-  logoutBtn.addEventListener("click", async () => {
-    if (!supabase) return;
-    try { await supabase.auth.signOut(); } catch(e){ console.warn(e); }
-    currentUser = null;
-    document.getElementById("appArea").classList.add("hidden");
-    document.getElementById("appArea").setAttribute("aria-hidden","true");
-    loginUserEmail.textContent = "ログイン中";
-  });
-
-  addTxBtn.addEventListener("click", async () => {
-    if (!supabase || !currentUser) { alert("先にログインしてください。"); return; }
-    const date = dateInput.value;
-    const categoryId = categorySelect.value;
-    const memo = memoInput.value.trim();
-    const amount = Number(amountInput.value);
-    const type = document.querySelector('input[name="type"]:checked').value;
-    if (!date || !categoryId || !amount) { alert("日付・カテゴリ・金額は必須です。"); return; }
-    const catOption = categorySelect.options[categorySelect.selectedIndex];
-    const categoryName = catOption ? catOption.textContent : "";
-    setBtn(addTxBtn, false);
+  function refreshClient(){
     try {
-      const { error } = await supabase.from("transactions").insert({
-        user_id: currentUser.id,
-        date, category_id: categoryId, category_name: categoryName, memo, amount, type
-      });
-      if (error) throw error;
-      clearInput(false);
-      await loadTransactions();
-      await renderSummary();
-    } catch (err) {
-      console.error("addTransaction error", err);
-      alert("登録に失敗しました。");
-    } finally {
-      setBtn(addTxBtn, true);
-    }
-  });
-
-  clearInputBtn.addEventListener("click", () => clearInput(false));
-
-  addCategoryBtn.addEventListener("click", async () => {
-    if (!supabase || !currentUser) { alert("先にログインしてください。"); return; }
-    const name = categoryNameInput.value.trim();
-    if (!name) return;
-    setBtn(addCategoryBtn, false);
-    try {
-      const { error } = await supabase.from("categories").insert({ user_id: currentUser.id, name });
-      if (error) throw error;
-      categoryNameInput.value = "";
-      await loadCategories();
-    } catch (err) {
-      console.error("addCategory error", err);
-      alert("カテゴリ追加に失敗しました。");
-    } finally {
-      setBtn(addCategoryBtn, true);
-    }
-  });
-
-  // Forgot modal handlers
-  document.getElementById("forgotLink").addEventListener("click", (e) => {
-    e.preventDefault();
-    forgotEmail.value = loginEmail.value || "";
-    forgotMsg.textContent = "";
-    forgotModal.classList.remove("hidden");
-  });
-
-  forgotCloseBtn.addEventListener("click", () => {
-    forgotModal.classList.add("hidden");
-  });
-
-  forgotSendBtn.addEventListener("click", async () => {
-    const email = forgotEmail.value.trim();
-    if (!email) { forgotMsg.textContent = "メールアドレスを入力してください。"; return; }
-    if (!supabase) { forgotMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
-    setBtn(forgotSendBtn, false);
-    forgotMsg.textContent = "送信中…";
-    try {
-      // Try to call reset password; if method unavailable, show message
-      if (typeof supabase.auth.resetPasswordForEmail === "function") {
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email);
-        if (error) throw error;
-        forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
-      } else if (typeof supabase.auth.api !== "undefined" && typeof supabase.auth.api.resetPasswordForEmail === "function") {
-        // older compatibility
-        const { data, error } = await supabase.auth.api.resetPasswordForEmail(email);
-        if (error) throw error;
-        forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
+      client = (typeof window.__keiri_getClient === 'function') ? window.__keiri_getClient() : (window.__keiri_supabase || null);
+      if (client) {
+        sysStatus && (sysStatus.textContent = 'Supabase 初期化済み');
       } else {
-        forgotMsg.textContent = "パスワード再設定機能は現在利用できません。管理者に連絡してください。";
+        sysStatus && (sysStatus.textContent = '未初期化');
+      }
+      return client;
+    } catch(e){ console.warn('refreshClient', e); return null; }
+  }
+
+  async function signUpFlow(email, password){
+    signupMsg.textContent = ''; signupMsg.className = 'msg';
+    const c = refreshClient();
+    if (!c) { signupMsg.textContent = 'システム未初期化です。Part2 で Supabase を設定してください。'; signupMsg.className='msg error'; return; }
+    setBtn(signupBtn, false);
+    try {
+      const res = await c.auth.signUp({ email, password });
+      if (res.error) throw res.error;
+      signupMsg.textContent = '確認メールを送信しました。メールを確認してください。';
+      signupMsg.className = 'msg ok';
+      signupEmail.value = ''; signupPassword.value = ''; signupPasswordConfirm.value = '';
+    } catch (err) {
+      console.error('signUp error', err);
+      signupMsg.textContent = friendlyAuthMessage(err);
+      signupMsg.className = 'msg error';
+    } finally {
+      setBtn(signupBtn, true);
+    }
+  }
+
+  async function signInFlow(email, password){
+    loginMsg.textContent = ''; loginMsg.className = 'msg';
+    clearLoginHints();
+    const c = refreshClient();
+    if (!c) { loginMsg.textContent = 'システム未初期化です。Part2 で Supabase を設定してください。'; loginMsg.className='msg error'; return; }
+    setBtn(loginBtn, false);
+    try {
+      const { data, error } = await c.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      currentUser = data.user || null;
+      if (currentUser) {
+        userSignedIn(currentUser);
+      }
+      loginMsg.textContent = '';
+      loginMsg.className = 'msg';
+    } catch (err) {
+      console.error('signIn error', err);
+      loginMsg.textContent = friendlyAuthMessage(err);
+      loginMsg.className = 'msg error';
+      showLoginErrorHints(err);
+    } finally {
+      setBtn(loginBtn, true);
+    }
+  }
+
+  async function signOutFlow(){
+    const c = refreshClient();
+    if (!c) { showToast('システム未初期化'); return; }
+    try { await c.auth.signOut(); } catch(e){ console.warn('signOut error', e); }
+    currentUser = null;
+    userSignedOut();
+    showToast('ログアウトしました');
+  }
+
+  function userSignedIn(user){
+    try {
+      currentUser = user;
+      const appArea = document.getElementById('keiriAppUI');
+      if (appArea) appArea.classList.remove('hidden');
+      const label = document.getElementById('userLabel');
+      if (label) label.textContent = user.email || 'ログイン中';
+      if (typeof window.__keiri_afterLogin === 'function') {
+        try { window.__keiri_afterLogin(user); } catch(e){ console.warn(e); }
+      }
+      if (typeof window.__keiri_setCurrentUser === 'function') {
+        try { window.__keiri_setCurrentUser(user); } catch(e){ console.warn(e); }
+      }
+    } catch(e){ console.warn(e); }
+  }
+
+  function userSignedOut(){
+    try {
+      const appArea = document.getElementById('keiriAppUI');
+      if (appArea) appArea.classList.add('hidden');
+      const label = document.getElementById('userLabel');
+      if (label) label.textContent = 'ログイン中';
+      try { document.getElementById('listArea').innerHTML = ''; } catch(e){}
+      try { document.getElementById('sumIncome').textContent = '0'; document.getElementById('sumExpense').textContent = '0'; document.getElementById('sumNet').textContent = '0'; } catch(e){}
+    } catch(e){ console.warn(e); }
+  }
+
+  async function initAuthState(){
+    const c = refreshClient();
+    if (!c) return;
+    try {
+      const { data } = await c.auth.getSession();
+      if (data && data.session && data.session.user) {
+        currentUser = data.session.user;
+        userSignedIn(currentUser);
+      } else {
+        userSignedOut();
       }
     } catch (err) {
-      console.error("forgot error", err);
-      forgotMsg.textContent = "送信に失敗しました：" + (err.message || "");
+      console.warn('getSession error', err);
+      diagMsg && (diagMsg.textContent = 'セッション復元に失敗しました。ネットワークまたはキーを確認してください。');
+    }
+    try {
+      if (typeof c.auth.onAuthStateChange === 'function') {
+        c.auth.onAuthStateChange((event, session) => {
+          if (session && session.user) userSignedIn(session.user);
+          else userSignedOut();
+        });
+      }
+    } catch(e){ console.warn('onAuthStateChange attach failed', e); }
+  }
+
+  function openForgotModal(prefill){
+    forgotEmail.value = prefill || '';
+    forgotMsg.textContent = '';
+    forgotModal.classList.remove('hidden');
+  }
+  function closeForgotModal(){ forgotModal.classList.add('hidden'); }
+
+  async function sendForgotEmail(email){
+    forgotMsg.textContent = '';
+    const c = refreshClient();
+    if (!c) { forgotMsg.textContent = 'システム未初期化です。'; return; }
+    setBtn(forgotSendBtn, false);
+    try {
+      if (typeof c.auth.resetPasswordForEmail === 'function') {
+        const { data, error } = await c.auth.resetPasswordForEmail(email);
+        if (error) throw error;
+        forgotMsg.textContent = '再設定メールを送信しました。メールを確認してください。';
+      } else if (c.auth.api && typeof c.auth.api.resetPasswordForEmail === 'function') {
+        const { data, error } = await c.auth.api.resetPasswordForEmail(email);
+        if (error) throw error;
+        forgotMsg.textContent = '再設定メールを送信しました。メールを確認してください。';
+      } else {
+        forgotMsg.textContent = 'パスワード再設定機能は現在利用できません。管理者に連絡してください。';
+      }
+    } catch (err) {
+      console.error('sendForgotEmail error', err);
+      forgotMsg.textContent = friendlyAuthMessage(err);
     } finally {
       setBtn(forgotSendBtn, true);
     }
-  });
+  }
 
-  // Data loading / rendering functions (used after login)
-  async function loadCategories() {
-    if (!supabase || !currentUser) return;
+  function attachHandlers(){
+    if (signupBtn && !signupBtn.__wired) {
+      signupBtn.__wired = true;
+      signupBtn.addEventListener('click', async () => {
+        const email = (signupEmail.value || '').trim();
+        const pw = signupPassword.value || '';
+        const confirm = signupPasswordConfirm.value || '';
+        const minLen = 12;
+        if (!email || !pw) { signupMsg.textContent = 'メールアドレスとパスワードを入力してください。'; signupMsg.className='msg error'; return; }
+        if (pw.length < minLen) { signupMsg.textContent = `パスワードは最低 ${minLen} 文字必要です`; signupMsg.className='msg error'; return; }
+        if (pw !== confirm) { signupMsg.textContent = 'パスワード確認が一致しません'; signupMsg.className='msg error'; return; }
+        await signUpFlow(email, pw);
+      });
+    }
+    if (signupClear && !signupClear.__wired) {
+      signupClear.__wired = true;
+      signupClear.addEventListener('click', ()=>{ signupEmail.value=''; signupPassword.value=''; signupPasswordConfirm.value=''; signupMsg.textContent=''; });
+    }
+
+    if (loginBtn && !loginBtn.__wired) {
+      loginBtn.__wired = true;
+      loginBtn.addEventListener('click', async () => {
+        const email = (loginEmail.value || '').trim();
+        const pw = loginPassword.value || '';
+        if (!email || !pw) { loginMsg.textContent = 'メールアドレスとパスワードを入力してください。'; loginMsg.className='msg error'; return; }
+        await signInFlow(email, pw);
+      });
+    }
+    if (loginClear && !loginClear.__wired) {
+      loginClear.__wired = true;
+      loginClear.addEventListener('click', ()=>{ loginEmail.value=''; loginPassword.value=''; loginMsg.textContent=''; clearLoginHints(); });
+    }
+
+    if (forgotLink && !forgotLink.__wired) {
+      forgotLink.__wired = true;
+      forgotLink.addEventListener('click', (e)=>{ e.preventDefault(); openForgotModal(loginEmail.value || ''); });
+    }
+    if (forgotCloseBtn && !forgotCloseBtn.__wired) {
+      forgotCloseBtn.__wired = true;
+      forgotCloseBtn.addEventListener('click', ()=>{ closeForgotModal(); });
+    }
+    if (forgotSendBtn && !forgotSendBtn.__wired) {
+      forgotSendBtn.__wired = true;
+      forgotSendBtn.addEventListener('click', async ()=> {
+        const email = (forgotEmail.value || '').trim();
+        if (!email) { forgotMsg.textContent = 'メールアドレスを入力してください。'; return; }
+        await sendForgotEmail(email);
+      });
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn && !logoutBtn.__wired) {
+      logoutBtn.__wired = true;
+      logoutBtn.addEventListener('click', async ()=> { await signOutFlow(); });
+    }
+  }
+
+  window.__keiri_initAuth = async function(){
+    refreshClient();
+    attachHandlers();
+    await initAuthState();
+    console.log('Keiri auth initialized');
+  };
+
+  try {
+    if ((typeof window.__keiri_getClient === 'function' && window.__keiri_getClient()) || window.__keiri_supabase) {
+      window.__keiri_initAuth && window.__keiri_initAuth();
+    }
+  } catch(e){ console.warn(e); }
+
+  console.log('Part3 loaded: auth flows wired');
+})();
+</script>
+
+<!-- Part4: App UI hooks and category management -->
+<script>
+(function(){
+  const appUI = document.getElementById('keiriAppUI');
+  const userLabel = document.getElementById('userLabel');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  const dateInput = document.getElementById('dateInput');
+  const categorySelect = document.getElementById('categorySelect');
+  const memoInput = document.getElementById('memoInput');
+  const amountInput = document.getElementById('amountInput');
+  const addTxBtn = document.getElementById('addTxBtn');
+  const clearInputBtn = document.getElementById('clearInputBtn');
+
+  const categoryNameInput = document.getElementById('categoryNameInput');
+  const addCategoryBtn = document.getElementById('addCategoryBtn');
+  const categoryList = document.getElementById('categoryList');
+
+  const listArea = document.getElementById('listArea');
+  const sumIncome = document.getElementById('sumIncome');
+  const sumExpense = document.getElementById('sumExpense');
+  const sumNet = document.getElementById('sumNet');
+
+  let currentUser = null;
+  let client = null;
+
+  function getClient(){ return (typeof window.__keiri_getClient === 'function') ? window.__keiri_getClient() : (window.__keiri_supabase || null); }
+  function setDefaultDate(){
     try {
-      const { data, error } = await supabase.from("categories").select("*").eq("user_id", currentUser.id).order("name",{ascending:true});
+      const t = new Date();
+      const s = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+      if (dateInput && !dateInput.value) dateInput.value = s;
+    } catch(e){}
+  }
+  function setBtn(btn, enabled){ if (!btn) return; btn.disabled = !enabled; btn.style.opacity = enabled ? '1' : '0.6'; }
+  function showToast(msg, t=3000){ window.__keiri_showToast ? window.__keiri_showToast(msg,t) : alert(msg); }
+
+  async function loadCategories(){
+    client = getClient();
+    if (!client || !currentUser) return;
+    try {
+      const { data, error } = await client.from('categories').select('*').eq('user_id', currentUser.id).order('name',{ascending:true});
       if (error) throw error;
-      categorySelect.innerHTML = "";
-      const opt = document.createElement("option"); opt.value=""; opt.textContent="カテゴリを選択"; categorySelect.appendChild(opt);
-      categoryList.innerHTML = "";
+      categorySelect.innerHTML = '';
+      const opt = document.createElement('option'); opt.value=''; opt.textContent='カテゴリを選択'; categorySelect.appendChild(opt);
+      categoryList.innerHTML = '';
       (data||[]).forEach(cat => {
-        const o = document.createElement("option"); o.value = cat.id; o.textContent = cat.name; categorySelect.appendChild(o);
-        const div = document.createElement("div"); div.style.display="flex"; div.style.justifyContent="space-between"; div.style.alignItems="center"; div.style.padding="6px 0";
-        const span = document.createElement("span"); span.textContent = cat.name;
-        const btn = document.createElement("button"); btn.textContent="削除"; btn.className="btn-sub"; btn.style.fontSize="12px"; btn.onclick = async () => {
-          if (!confirm("このカテゴリを削除しますか？（紐づく明細は残ります）")) return;
+        const o = document.createElement('option'); o.value = cat.id; o.textContent = cat.name; categorySelect.appendChild(o);
+        const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.padding='6px 0';
+        const span = document.createElement('span'); span.textContent = cat.name;
+        const btn = document.createElement('button'); btn.className='btn btn-ghost'; btn.style.fontSize='12px'; btn.textContent='削除';
+        btn.addEventListener('click', async () => {
+          if (!confirm('このカテゴリを削除しますか？（紐づく明細は残ります）')) return;
           try {
-            const { error } = await supabase.from("categories").delete().eq("id", cat.id).eq("user_id", currentUser.id);
+            const { error } = await client.from('categories').delete().eq('id', cat.id).eq('user_id', currentUser.id);
             if (error) throw error;
             await loadCategories();
-          } catch (err) { console.error("deleteCategory error", err); alert("カテゴリ削除に失敗しました。"); }
-        };
-        div.appendChild(span); div.appendChild(btn); categoryList.appendChild(div);
+            showToast('カテゴリを削除しました');
+          } catch (err) {
+            console.error('deleteCategory error', err);
+            alert('カテゴリ削除に失敗しました');
+          }
+        });
+        row.appendChild(span); row.appendChild(btn); categoryList.appendChild(row);
       });
-    } catch (err) { console.error("loadCategories error", err); }
+    } catch (err) {
+      console.error('loadCategories error', err);
+      categorySelect.innerHTML = '<option value="">カテゴリを読み込めませんでした</option>';
+    }
   }
 
-  async function loadTransactions() {
-    if (!supabase || !currentUser) return;
+  async function addCategory(){
+    client = getClient();
+    if (!client || !currentUser) { alert('先にログインしてください'); return; }
+    const name = (categoryNameInput.value || '').trim();
+    if (!name) return;
+    setBtn(addCategoryBtn, false);
     try {
-      const { data, error } = await supabase.from("transactions").select("id,date,category_name,memo,amount,type").eq("user_id", currentUser.id).order("date",{ascending:true}).order("id",{ascending:true});
+      const { error } = await client.from('categories').insert({ user_id: currentUser.id, name });
       if (error) throw error;
-      renderList(data || []);
-    } catch (err) { console.error("loadTransactions error", err); }
+      categoryNameInput.value = '';
+      await loadCategories();
+      showToast('カテゴリを追加しました');
+    } catch (err) {
+      console.error('addCategory error', err);
+      alert('カテゴリ追加に失敗しました');
+    } finally {
+      setBtn(addCategoryBtn, true);
+    }
   }
 
-  function renderList(rows) {
-    listArea.innerHTML = "";
-    if (!rows || rows.length === 0) { listArea.textContent = "データがありません。"; return; }
-    rows.forEach(r => {
-      const div = document.createElement("div"); div.className = "list-item";
-      const d = document.createElement("div"); d.textContent = r.date || "";
-      const m = document.createElement("div"); m.textContent = r.memo || "";
-      const c = document.createElement("div"); c.textContent = r.category_name || "";
-      const a = document.createElement("div"); a.className = "list-item-amount " + (r.type === "income" ? "income" : "expense"); a.textContent = (r.type === "income" ? "+" : "-") + Number(r.amount || 0).toLocaleString();
-      const btn = document.createElement("button"); btn.textContent = "削除"; btn.className = "btn-sub"; btn.style.fontSize = "12px"; btn.onclick = async () => {
-        if (!confirm("この明細を削除しますか？")) return;
+  window.__keiri_afterLogin = async function(user){
+    try {
+      currentUser = user;
+      client = getClient();
+      if (!client) return;
+      appUI.classList.remove('hidden');
+      if (userLabel) userLabel.textContent = user.email || 'ログイン中';
+      setDefaultDate();
+      try { await loadCategories(); } catch(e){ console.warn(e); }
+      try { if (typeof window.__keiri_loadTransactions === 'function') await window.__keiri_loadTransactions(); } catch(e){ console.warn(e); }
+      try { if (typeof window.__keiri_renderSummary === 'function') await window.__keiri_renderSummary(); } catch(e){ console.warn(e); }
+      try { if (typeof window.__keiri_syncQueue === 'function') await window.__keiri_syncQueue(); } catch(e){ console.warn(e); }
+    } catch(e){ console.warn('afterLogin hook error', e); }
+  };
+
+  window.__keiri_afterInit = async function(clientArg){
+    try {
+      client = clientArg || getClient();
+      if (typeof window.__keiri_initAuth === 'function') {
+        await window.__keiri_initAuth();
+      } else {
         try {
-          const { error } = await supabase.from("transactions").delete().eq("id", r.id).eq("user_id", currentUser.id);
-          if (error) throw error;
-          await loadTransactions(); await renderSummary();
-        } catch (err) { console.error("deleteTransaction error", err); alert("削除に失敗しました。"); }
-      };
+          const { data } = await client.auth.getSession();
+          if (data && data.session && data.session.user) {
+            await window.__keiri_afterLogin(data.session.user);
+          }
+        } catch(e){ console.warn(e); }
+      }
+    } catch(e){ console.warn('afterInit hook error', e); }
+  };
+
+  try {
+    if (addCategoryBtn) addCategoryBtn.addEventListener('click', addCategory);
+    if (logoutBtn) logoutBtn.addEventListener('click', async () => {
+      try {
+        const c = getClient();
+        if (c && typeof c.auth.signOut === 'function') await c.auth.signOut();
+        appUI.classList.add('hidden');
+        userLabel.textContent = 'ログイン中';
+        showToast('ログアウトしました');
+      } catch(e){ console.warn(e); }
+    });
+  } catch(e){ console.warn(e); }
+
+  window.__keiri_loadCategories = loadCategories;
+  setDefaultDate();
+  console.log('Part4 loaded: App UI and category management ready');
+})();
+</script>
+
+<!-- Part5: Transactions CRUD, offline queue, CSV export -->
+<script>
+(function(){
+  const listArea = document.getElementById('listArea');
+  const addTxBtn = document.getElementById('addTxBtn');
+  const clearInputBtn = document.getElementById('clearInputBtn');
+  const dateInput = document.getElementById('dateInput');
+  const categorySelect = document.getElementById('categorySelect');
+  const memoInput = document.getElementById('memoInput');
+  const amountInput = document.getElementById('amountInput');
+
+  const sumIncome = document.getElementById('sumIncome');
+  const sumExpense = document.getElementById('sumExpense');
+  const sumNet = document.getElementById('sumNet');
+
+  let currentUser = null;
+  let client = null;
+
+  const QUEUE_KEY = 'keiri_offline_queue_v1';
+
+  function getClient(){ return (typeof window.__keiri_getClient === 'function') ? window.__keiri_getClient() : (window.__keiri_supabase || null); }
+  function showToast(msg, t=3500){ if (window.__keiri_showToast) window.__keiri_showToast(msg,t); else console.log('toast:', msg); }
+  function setBtn(btn, enabled){ if (!btn) return; btn.disabled = !enabled; btn.style.opacity = enabled ? '1' : '0.6'; }
+  function safeParse(s, fallback){ try { return JSON.parse(s); } catch(e){ return fallback; } }
+
+  function pushQueue(item){
+    try {
+      const q = safeParse(localStorage.getItem(QUEUE_KEY), []);
+      q.push(item);
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+    } catch(e){ console.warn('pushQueue error', e); }
+  }
+  function popQueueAll(){
+    try {
+      const q = safeParse(localStorage.getItem(QUEUE_KEY), []);
+      localStorage.removeItem(QUEUE_KEY);
+      return q || [];
+    } catch(e){ console.warn('popQueueAll error', e); return []; }
+  }
+  function peekQueue(){ return safeParse(localStorage.getItem(QUEUE_KEY), []); }
+
+  async function withRetry(fn, attempts = 4, base = 300){
+    let lastErr = null;
+    for (let i=0;i<attempts;i++){
+      try { return await fn(); } catch (err) {
+        lastErr = err;
+        const delay = base * Math.pow(2, i) + Math.floor(Math.random()*200);
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+    throw lastErr;
+  }
+
+  function renderOptimisticRow(payload){
+    try {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.setAttribute('data-tx-id', 'pending-' + Date.now());
+      const d = document.createElement('div'); d.textContent = payload.date || '';
+      const m = document.createElement('div'); m.textContent = payload.memo || '';
+      const c = document.createElement('div'); c.textContent = payload.category_name || '';
+      const a = document.createElement('div'); a.className = 'list-item-amount ' + (payload.type === 'income' ? 'income' : 'expense'); a.textContent = (payload.type === 'income' ? '+' : '-') + Number(payload.amount || 0).toLocaleString();
+      const btn = document.createElement('button'); btn.textContent = '削除'; btn.className = 'btn btn-ghost'; btn.style.fontSize = '12px';
+      btn.onclick = () => { div.remove(); };
+      div.appendChild(d); div.appendChild(m); div.appendChild(c); div.appendChild(a); div.appendChild(btn);
+      if (listArea) listArea.insertBefore(div, listArea.firstChild);
+    } catch(e){ console.warn('renderOptimisticRow error', e); }
+  }
+
+  function renderList(rows){
+    if (!listArea) return;
+    listArea.innerHTML = '';
+    if (!rows || rows.length === 0) { listArea.textContent = 'データがありません。'; return; }
+    rows.forEach(r => {
+      const div = document.createElement('div'); div.className = 'list-item'; div.setAttribute('data-tx-id', r.id);
+      const d = document.createElement('div'); d.textContent = r.date || '';
+      const m = document.createElement('div'); m.textContent = r.memo || '';
+      const c = document.createElement('div'); c.textContent = r.category_name || '';
+      const a = document.createElement('div'); a.className = 'list-item-amount ' + (r.type === 'income' ? 'income' : 'expense'); a.textContent = (r.type === 'income' ? '+' : '-') + Number(r.amount || 0).toLocaleString();
+      const btn = document.createElement('button'); btn.textContent = '削除'; btn.className = 'btn btn-ghost'; btn.style.fontSize = '12px';
+      btn.addEventListener('click', () => deleteTransactionHandler(r.id));
       div.appendChild(d); div.appendChild(m); div.appendChild(c); div.appendChild(a); div.appendChild(btn);
       listArea.appendChild(div);
     });
   }
 
-  async function renderSummary() {
-    if (!supabase || !currentUser) return;
+  async function loadTransactions(){
+    client = getClient();
+    if (!client || !currentUser) return;
     try {
-      const { data, error } = await supabase.from("transactions").select("amount,type").eq("user_id", currentUser.id);
+      const { data, error } = await withRetry(async () => {
+        return await client.from('transactions').select('id,date,category_name,memo,amount,type').eq('user_id', currentUser.id).order('date',{ascending:false}).order('id',{ascending:false});
+      }, 4, 300);
+      if (error) throw error;
+      renderList(data || []);
+    } catch (err) {
+      console.error('loadTransactions error', err);
+      const queued = peekQueue();
+      if (queued.length) {
+        listArea.innerHTML = '<div class="small">オフラインキューのアイテムを表示しています</div>';
+        queued.slice().reverse().forEach(q => { if (q.action === 'insert') renderOptimisticRow(q.payload); });
+      } else {
+        listArea.innerHTML = '<div class="small">データを取得できませんでした。</div>';
+      }
+      throw err;
+    }
+  }
+
+  async function addTransactionRemote(payload){
+    const client = getClient();
+    if (!client) throw new Error('Supabase client not initialized');
+    return await withRetry(async () => {
+      const { error } = await client.from('transactions').insert(payload);
+      if (error) throw error;
+      return true;
+    }, 4, 400);
+  }
+
+  async function addTransactionHandler(){
+    if (!currentUser) { alert('先にログインしてください。'); return; }
+    const date = dateInput.value;
+    const categoryId = categorySelect.value;
+    const memo = (memoInput.value || '').trim();
+    const amount = Number(amountInput.value || 0);
+    const type = document.querySelector('input[name="type"]:checked') ? document.querySelector('input[name="type"]:checked').value : 'expense';
+    if (!date || !categoryId || !amount) { alert('日付・カテゴリ・金額は必須です。'); return; }
+    const catOption = categorySelect.options[categorySelect.selectedIndex];
+    const categoryName = catOption ? catOption.textContent : '';
+    const payload = { user_id: currentUser.id, date, category_id: categoryId, category_name: categoryName, memo, amount, type };
+
+    try { renderOptimisticRow(payload); } catch(e){}
+
+    try {
+      await addTransactionRemote(payload);
+      await loadTransactions();
+      await renderSummary();
+      showToast('登録しました');
+    } catch (err) {
+      console.warn('addTransaction remote failed, queueing', err);
+      pushQueue({ action: 'insert', payload, ts: Date.now() });
+      showToast('オフラインのためローカルに保存しました。接続時に同期します。');
+    } finally {
+      clearInput(false);
+    }
+  }
+
+  async function deleteTransactionHandler(id){
+    if (!currentUser) return;
+    if (!confirm('この明細を削除しますか？')) return;
+    try {
+      const el = document.querySelector(`[data-tx-id="${id}"]`);
+      if (el) el.remove();
+      const client = getClient();
+      if (!client) throw new Error('Supabase client not initialized');
+      await withRetry(async () => {
+        const { error } = await client.from('transactions').delete().eq('id', id).eq('user_id', currentUser.id);
+        if (error) throw error;
+      }, 4, 300);
+      await renderSummary();
+      showToast('削除しました');
+    } catch (err) {
+      console.error('deleteTransaction error', err);
+      pushQueue({ action: 'delete', payload: { id, user_id: currentUser ? currentUser.id : null }, ts: Date.now() });
+      showToast('オフラインのため削除をキューに登録しました。接続時に同期します。');
+    }
+  }
+
+  async function renderSummary(){
+    if (!currentUser) return;
+    const client = getClient();
+    if (!client) throw new Error('Supabase client not initialized');
+    try {
+      const { data, error } = await withRetry(async () => {
+        return await client.from('transactions').select('amount,type').eq('user_id', currentUser.id);
+      }, 4, 300);
       if (error) throw error;
       let income = 0, expense = 0;
-      (data || []).forEach(r => { const amt = Number(r.amount) || 0; if (r.type === "income") income += amt; else expense += amt; });
-      sumIncome.textContent = income.toLocaleString(); sumExpense.textContent = expense.toLocaleString(); sumNet.textContent = (income - expense).toLocaleString();
-    } catch (err) { console.error("renderSummary error", err); }
-  }
-
-  function clearInput(clearDate = false) {
-    if (clearDate) dateInput.value = "";
-    memoInput.value = "";
-    amountInput.value = "";
-  }
-
-  // Called by Part1 after __app_init_supabase returns true
-  window.__app_after_init = async function() {
-    try {
-      supabase = window.supabase || supabase;
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      if (data && data.session && data.session.user) {
-        currentUser = data.session.user;
-        loginUserEmail.textContent = currentUser.email || "ログイン中";
-        document.getElementById("appArea").classList.remove("hidden");
-        document.getElementById("appArea").setAttribute("aria-hidden","false");
-        ensureTodayDate();
-        await loadCategories(); await loadTransactions(); await renderSummary();
+      (data || []).forEach(r => { const amt = Number(r.amount) || 0; if (r.type === 'income') income += amt; else expense += amt; });
+      if (sumIncome) sumIncome.textContent = income.toLocaleString();
+      if (sumExpense) sumExpense.textContent = expense.toLocaleString();
+      if (sumNet) sumNet.textContent = (income - expense).toLocaleString();
+      if (typeof window.__keiri_updateChartData === 'function') {
+        try { window.__keiri_updateChartData(); } catch(e){ console.warn(e); }
       }
-    } catch (err) { console.error("session restore error", err); }
+    } catch (err) {
+      console.error('renderSummary error', err);
+      throw err;
+    }
+  }
+
+  function exportCSV(){
+    try {
+      const rows = [];
+      const header = ['id','date','category','memo','amount','type'];
+      rows.push(header.join(','));
+      const items = listArea ? listArea.querySelectorAll('.list-item') : [];
+      items.forEach(item => {
+        const cells = item.querySelectorAll('div');
+        const id = item.getAttribute('data-tx-id') || '';
+        const date = (cells[0] && cells[0].textContent) || '';
+        const memo = (cells[1] && cells[1].textContent) || '';
+        const category = (cells[2] && cells[2].textContent) || '';
+        const amount = (cells[3] && cells[3].textContent) || '';
+        const type = amount && amount.startsWith('+') ? 'income' : 'expense';
+        rows.push([id, `"${date}"`, `"${category.replace(/"/g,'""')}"`, `"${memo.replace(/"/g,'""')}"`, `"${amount.replace(/"/g,'')}"`, type].join(','));
+      });
+      const csv = rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `keiri_export_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('CSV をダウンロードしました');
+    } catch (e) {
+      console.error('exportCSV error', e);
+      showToast('CSV エクスポートに失敗しました');
+    }
+  }
+
+  async function syncQueue(){
+    const client = getClient();
+    if (!client || !currentUser) return;
+    const q = popQueueAll();
+    if (!q || q.length === 0) return;
+    showToast('オフラインキューを同期中…', 5000);
+    for (const item of q) {
+      try {
+        if (item.action === 'insert') {
+          await withRetry(async () => {
+            const { error } = await client.from('transactions').insert(item.payload);
+            if (error) throw error;
+          }, 4, 400);
+        } else if (item.action === 'delete') {
+          await withRetry(async () => {
+            const { error } = await client.from('transactions').delete().eq('id', item.payload.id).eq('user_id', item.payload.user_id);
+            if (error) throw error;
+          }, 4, 400);
+        }
+      } catch (err) {
+        console.warn('syncQueue item failed, requeueing', err);
+        pushQueue(item);
+      }
+    }
+    try { await loadTransactions(); await renderSummary(); } catch(e){ console.warn(e); }
+    showToast('同期完了');
+  }
+
+  window.addEventListener('online', () => {
+    showToast('オンラインに戻りました。同期を開始します', 4000);
+    setTimeout(() => { syncQueue().catch(e => console.warn(e)); }, 800);
+  });
+
+  window.__keiri_addTransactionHandler = addTransactionHandler;
+  window.__keiri_deleteTransactionHandler = deleteTransactionHandler;
+  window.__keiri_loadTransactions = loadTransactions;
+  window.__keiri_renderSummary = renderSummary;
+  window.__keiri_exportCSV = exportCSV;
+  window.__keiri_syncQueue = syncQueue;
+
+  try {
+    if (addTxBtn) addTxBtn.addEventListener('click', addTransactionHandler);
+    if (clearInputBtn) clearInputBtn.addEventListener('click', () => {
+      if (memoInput) memoInput.value = '';
+      if (amountInput) amountInput.value = '';
+    });
+    const exportBtn = document.getElementById('exportCsvBtn');
+    if (exportBtn) exportBtn.addEventListener('click', exportCSV);
+  } catch(e){ console.warn(e); }
+
+  window.__keiri_setCurrentUser = function(user){
+    currentUser = user;
+    (async () => {
+      try { await loadTransactions(); } catch(e){ console.warn(e); }
+      try { await renderSummary(); } catch(e){ console.warn(e); }
+      try { await syncQueue(); } catch(e){ console.warn(e); }
+    })();
   };
 
-  // quick sanity
-  console.log("Part2 loaded");
+  function clearInput(resetDate = true){
+    try {
+      if (memoInput) memoInput.value = '';
+      if (amountInput) amountInput.value = '';
+      if (categorySelect) categorySelect.selectedIndex = 0;
+      if (resetDate && dateInput) {
+        const t = new Date();
+        dateInput.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+      }
+    } catch(e){}
+  }
+
+  console.log('Part5 loaded: Transactions CRUD, offline queue, retry logic, CSV export wired');
+})();
 </script>
-<!-- Part3/5 -->
+
+<!-- Part6: Chart and aggregation -->
 <script>
-  // Part3: Supabase 初期化と認証状態ハンドリング
-  (function(){
-    // local references (may already exist from earlier parts)
-    window.__app_supabase = window.__app_supabase || null;
-    window.__app_currentUser = window.__app_currentUser || null;
+(function(){
+  const chartCanvas = document.getElementById('chartMonthly');
+  const summaryArea = document.getElementById('summaryArea');
+  const listArea = document.getElementById('listArea');
 
-    // sanitize inputs
-    function cleanString(s) {
-      return (s || "").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+  let filterContainer = document.getElementById('keiriFilters');
+  if (!filterContainer) {
+    filterContainer = document.createElement('div');
+    filterContainer.id = 'keiriFilters';
+    filterContainer.style.display = 'flex';
+    filterContainer.style.gap = '8px';
+    filterContainer.style.marginTop = '10px';
+    const from = document.createElement('input'); from.type = 'month'; from.id = 'filterFrom'; from.className = 'input'; from.style.maxWidth='180px';
+    const to = document.createElement('input'); to.type = 'month'; to.id = 'filterTo'; to.className = 'input'; to.style.maxWidth='180px';
+    const apply = document.createElement('button'); apply.id = 'filterApply'; apply.className = 'btn btn-ghost'; apply.textContent = 'フィルタ適用';
+    const reset = document.createElement('button'); reset.id = 'filterReset'; reset.className = 'btn btn-ghost'; reset.textContent = 'リセット';
+    filterContainer.appendChild(from); filterContainer.appendChild(to); filterContainer.appendChild(apply); filterContainer.appendChild(reset);
+    const summaryPanel = document.getElementById('summaryPanel');
+    if (summaryPanel) summaryPanel.appendChild(filterContainer);
+  }
+
+  let chartInstance = null;
+
+  function parseDateYMD(s) {
+    if (!s) return null;
+    const parts = s.split('-').map(p => Number(p));
+    if (parts.length < 3) return null;
+    return new Date(parts[0], parts[1]-1, parts[2]);
+  }
+
+  function monthKeyFromDate(d) {
+    if (!d) return '';
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  async function computeMonthlyTotals(options = {}) {
+    let rows = [];
+    try {
+      const client = (typeof window.__keiri_getClient === 'function') ? window.__keiri_getClient() : (window.__keiri_supabase || null);
+      const currentUser = window.__keiri_currentUser || (window.__keiri_getClient && window.__keiri_getClient().__currentUser) || null;
+      if (client && currentUser) {
+        const { data, error } = await client.from('transactions').select('date,amount,type').eq('user_id', currentUser.id).order('date',{ascending:true});
+        if (!error && data) rows = data;
+      }
+    } catch(e){
+      console.warn('computeMonthlyTotals: server fetch failed, falling back to DOM parse', e);
     }
 
-    // initialize supabase client and attach auth listener
-    async function initSupabase(url, key) {
+    if (!rows || rows.length === 0) {
       try {
-        const u = cleanString(url);
-        const k = cleanString(key);
-        if (!u || !k) {
-          console.warn("initSupabase: missing url or key");
-          return false;
-        }
-        window.__app_supabase = window.supabase.createClient(u, k);
+        const items = (listArea && listArea.querySelectorAll('.list-item')) || [];
+        items.forEach(it => {
+          const divs = it.querySelectorAll('div');
+          const date = (divs[0] && divs[0].textContent) || '';
+          const amountText = (divs[3] && divs[3].textContent) || '';
+          const type = amountText && amountText.startsWith('+') ? 'income' : 'expense';
+          const amount = Number((amountText || '').replace(/[^\d\-\.]/g,'')) || 0;
+          rows.push({ date, amount, type });
+        });
+      } catch(e){ console.warn('DOM parse fallback failed', e); }
+    }
 
-        // auth state change listener
-        try {
-          window.__app_supabase.auth.onAuthStateChange((event, session) => {
-            // event examples: SIGNED_IN, SIGNED_OUT, PASSWORD_RECOVERY, USER_UPDATED
-            if (session && session.user) {
-              window.__app_currentUser = session.user;
-              onUserSignedIn(session.user);
-            } else {
-              window.__app_currentUser = null;
-              onUserSignedOut();
+    const normalized = (rows || []).map(r => {
+      const dateStr = (r.date || '').slice(0,10);
+      const d = parseDateYMD(dateStr);
+      const amt = Number(r.amount || 0) || 0;
+      const t = (r.type || '').toLowerCase() === 'income' ? 'income' : 'expense';
+      return { dateStr, dateObj: d, amount: amt, type: t };
+    }).filter(r => r.dateObj);
+
+    let fromKey = options.fromMonth || document.getElementById('filterFrom')?.value || '';
+    let toKey = options.toMonth || document.getElementById('filterTo')?.value || '';
+    if (!fromKey) fromKey = '1900-01';
+    if (!toKey) toKey = '9999-12';
+
+    const map = new Map();
+    normalized.forEach(r => {
+      const key = monthKeyFromDate(r.dateObj);
+      if (key < fromKey || key > toKey) return;
+      if (!map.has(key)) map.set(key, { income:0, expense:0 });
+      const bucket = map.get(key);
+      if (r.type === 'income') bucket.income += r.amount;
+      else bucket.expense += r.amount;
+    });
+
+    const months = [];
+    const [fy, fm] = fromKey.split('-').map(n=>Number(n));
+    const [ty, tm] = toKey.split('-').map(n=>Number(n));
+    let startY = fy, startM = fm, endY = ty, endM = tm;
+    if (fromKey > toKey) { startY = ty; startM = tm; endY = fy; endM = fm; }
+    const maxMonths = 60;
+    let cursorY = startY, cursorM = startM;
+    for (let i=0;i<maxMonths;i++){
+      const key = `${cursorY}-${String(cursorM).padStart(2,'0')}`;
+      months.push(key);
+      cursorM++;
+      if (cursorM > 12) { cursorM = 1; cursorY++; }
+      if (cursorY > endY || (cursorY === endY && cursorM > endM)) break;
+    }
+
+    const labels = [];
+    const incomeData = [];
+    const expenseData = [];
+    months.forEach(k => {
+      labels.push(k);
+      const b = map.get(k) || { income:0, expense:0 };
+      incomeData.push(Math.round(b.income));
+      expenseData.push(Math.round(b.expense));
+    });
+
+    return { labels, incomeData, expenseData, raw: normalized };
+  }
+
+  async function updateChart(options = {}) {
+    try {
+      const res = await computeMonthlyTotals(options);
+      const labels = res.labels || [];
+      const incomeData = res.incomeData || [];
+      const expenseData = res.expenseData || [];
+
+      if (!chartCanvas) return;
+      if (chartInstance) {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = incomeData;
+        chartInstance.data.datasets[1].data = expenseData;
+        chartInstance.update();
+      } else {
+        chartInstance = new Chart(chartCanvas, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              { label: '収入', data: incomeData, backgroundColor: 'rgba(74,222,128,0.9)' },
+              { label: '支出', data: expenseData, backgroundColor: 'rgba(249,115,115,0.9)' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              tooltip: { enabled: true, callbacks: {} },
+              legend: { position: 'top' }
+            },
+            scales: {
+              x: { stacked: false, ticks: { maxRotation: 0 } },
+              y: { stacked: false, beginAtZero: true }
             }
-          });
-        } catch (e) {
-          console.warn("onAuthStateChange not available", e);
-        }
+          }
+        });
+      }
 
-        // attempt to restore session immediately
+      const totalIncome = (incomeData || []).reduce((a,b)=>a+b,0);
+      const totalExpense = (expenseData || []).reduce((a,b)=>a+b,0);
+      if (sumIncome) sumIncome.textContent = totalIncome.toLocaleString();
+      if (sumExpense) sumExpense.textContent = totalExpense.toLocaleString();
+      if (sumNet) sumNet.textContent = (totalIncome - totalExpense).toLocaleString();
+
+      return { labels, incomeData, expenseData };
+    } catch (err) {
+      console.error('updateChart error', err);
+      if (summaryArea) {
         try {
-          const { data } = await window.__app_supabase.auth.getSession();
-          if (data && data.session && data.session.user) {
-            window.__app_currentUser = data.session.user;
-            onUserSignedIn(data.session.user);
-          } else {
-            onUserSignedOut();
-          }
-        } catch (e) {
-          console.warn("getSession error", e);
-        }
-
-        // expose globally for other parts
-        window.__app_after_init && window.__app_after_init();
-        return true;
-      } catch (err) {
-        console.error("initSupabase error", err);
-        return false;
+          const el = document.createElement('div'); el.className = 'small'; el.textContent = 'チャートの更新に失敗しました。コンソールを確認してください。';
+          summaryArea.appendChild(el);
+        } catch(e){}
       }
     }
+  }
 
-    // UI helpers when user signs in/out
-    function onUserSignedIn(user) {
-      try {
-        currentUser = user;
-      } catch(e){}
-      try {
-        document.getElementById("appArea").classList.remove("hidden");
-        document.getElementById("appArea").setAttribute("aria-hidden","false");
-      } catch(e){}
-      try {
-        const label = document.getElementById("loginUserEmail");
-        if (label) label.textContent = user.email || "ログイン中";
-      } catch(e){}
-      // ensure date and load data
-      try { ensureTodayDate(); } catch(e){}
-      // call data loaders if available
-      (async () => {
-        try { await loadCategories(); } catch(e){}
-        try { await loadTransactions(); } catch(e){}
-        try { await renderSummary(); } catch(e){}
-      })();
-    }
+  window.__keiri_updateChartData = updateChart;
 
-    function onUserSignedOut() {
-      try {
-        currentUser = null;
-      } catch(e){}
-      try {
-        document.getElementById("appArea").classList.add("hidden");
-        document.getElementById("appArea").setAttribute("aria-hidden","true");
-      } catch(e){}
-      try {
-        const label = document.getElementById("loginUserEmail");
-        if (label) label.textContent = "ログイン中";
-      } catch(e){}
-      try {
-        listArea.innerHTML = "";
-        sumIncome.textContent = "0";
-        sumExpense.textContent = "0";
-        sumNet.textContent = "0";
-      } catch(e){}
-    }
+  const filterApply = document.getElementById('filterApply');
+  const filterReset = document.getElementById('filterReset');
+  if (filterApply) {
+    filterApply.addEventListener('click', async () => {
+      const from = document.getElementById('filterFrom')?.value || '';
+      const to = document.getElementById('filterTo')?.value || '';
+      await updateChart({ fromMonth: from, toMonth: to });
+      window.__keiri_showToast && window.__keiri_showToast('フィルタを適用しました', 2500);
+    });
+  }
+  if (filterReset) {
+    filterReset.addEventListener('click', async () => {
+      document.getElementById('filterFrom').value = '';
+      document.getElementById('filterTo').value = '';
+      await updateChart({});
+      window.__keiri_showToast && window.__keiri_showToast('フィルタをリセットしました', 2000);
+    });
+  }
 
-    // wire up login/signup to use the initialized client if user clicked before init
-    // override click handlers to ensure they use the live client
-    function ensureHandlers() {
-      // signup
-      const sBtn = document.getElementById("signupBtn");
-      if (sBtn) {
-        sBtn.addEventListener("click", async (ev) => {
-          signupMsg.textContent = "";
-          const email = signupEmail.value.trim();
-          const pw = signupPassword.value;
-          const confirm = signupPasswordConfirm.value;
-          const v = validatePasswordClient(pw, confirm);
-          if (!v.ok) { signupMsg.textContent = v.msg; return; }
-          if (!window.__app_supabase) { signupMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
-          setButtonState(sBtn, false);
-          try {
-            const res = await window.__app_supabase.auth.signUp({ email, password: pw });
-            if (res.error) throw res.error;
-            signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
-            signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
-          } catch (err) {
-            signupMsg.textContent = "新規登録に失敗しました：" + (err.message || JSON.stringify(err));
-          } finally {
-            setButtonState(sBtn, true);
-          }
-        }, { once: true });
-      }
+  if (!window.__keiri_chartAutoUpdater) {
+    window.__keiri_chartAutoUpdater = true;
+    setTimeout(() => { updateChart().catch(e=>console.warn(e)); }, 1200);
+    setInterval(() => { updateChart().catch(e=>{}); }, 20000);
+  }
 
-      // login
-      const lBtn = document.getElementById("loginBtn");
-      if (lBtn) {
-        lBtn.addEventListener("click", async (ev) => {
-          loginMsg.textContent = ""; clearHints();
-          const email = loginEmail.value.trim();
-          const pw = loginPassword.value;
-          if (!email || !pw) {
-            loginMsg.textContent = "メールアドレスとパスワードを入力してください。";
-            return;
-          }
-          if (!window.__app_supabase) {
-            loginMsg.textContent = "システム未初期化です。後で再試行してください。";
-            return;
-          }
-          setButtonState(lBtn, false);
-          try {
-            const { data, error } = await window.__app_supabase.auth.signInWithPassword({ email, password: pw });
-            if (error) throw error;
-            // onAuthStateChange will handle UI; but ensure immediate update if session returned
-            if (data && data.user) {
-              onUserSignedIn(data.user);
-            }
-            loginMsg.textContent = "";
-          } catch (err) {
-            showLoginErrorHints(err);
-          } finally {
-            setButtonState(lBtn, true);
-          }
-        }, { once: true });
-      }
-    }
-
-    // small helper to set disabled style
-    function setButtonState(btn, enabled) {
-      try {
-        btn.disabled = !enabled;
-        btn.style.opacity = enabled ? "1" : "0.6";
-      } catch(e){}
-    }
-
-    // expose init function globally
-    window.__app_init = async function(url, key) {
-      const ok = await initSupabase(url, key);
-      if (ok) {
-        // rebind handlers to use the initialized client
-        try { ensureHandlers(); } catch(e){}
-        // call after init hook if present
-        try { window.__app_after_init && window.__app_after_init(); } catch(e){}
-      }
-      return ok;
-    };
-
-    // auto-run if __app_init_supabase was called earlier (compat)
-    if (typeof window.__app_init_supabase === "function" && !window.__app_supabase) {
-      // do not auto-call with empty values; caller should pass url/key
-      // keep for compatibility
-    }
-
-    // expose small debug
-    console.log("Part3 loaded: supabase init and auth handlers ready");
-  })();
+  window.__keiri_getMonthlyTotals = computeMonthlyTotals;
+  console.log('Part6 loaded: Chart and monthly aggregation ready');
+})();
 </script>
-<!-- Part4/5 -->
+
+<!-- Part7: Error handling, diagnostics, auto-recover -->
 <script>
-  // Part4: 認証処理の補完・パスワード再設定・ユーティリティ
-  (function(){
-    // safe references
-    const _getSupabase = () => window.__app_supabase || (window.supabase && window.supabase.createClient ? window.supabase : null);
+(function(){
 
-    // show transient message
-    function flash(el, msg, timeout = 4000) {
-      if (!el) return;
-      el.textContent = msg;
-      setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, timeout);
-    }
+  window.addEventListener('error', (ev) => {
+    console.error('Unhandled error:', ev.error || ev.message, ev);
+    safeToast('予期せぬエラーが発生しました。処理を継続します。');
+    enableAllButtons();
+  });
 
-    // map supabase auth errors to friendly text (used by showLoginErrorHints too)
-    function friendlyAuthMessage(err) {
-      if (!err) return "認証に失敗しました。";
-      const m = (err.message || "").toLowerCase();
-      if (m.includes("invalid") && m.includes("email")) return "メールアドレスの形式を確認してください。";
-      if (m.includes("invalid") && m.includes("password")) return "パスワードが正しくありません。";
-      if (m.includes("invalid login") || m.includes("invalid credentials")) return "メールアドレスまたはパスワードが正しくありません。";
-      if (m.includes("not confirmed") || m.includes("email not confirmed") || m.includes("confirm")) return "メールアドレスの確認が必要です。確認メールをチェックしてください。";
-      if (m.includes("rate limit") || m.includes("too many")) return "試行回数が多すぎます。しばらく待ってから再試行してください。";
-      return err.message || "認証に失敗しました。";
-    }
+  window.addEventListener('unhandledrejection', (ev) => {
+    console.error('Unhandled rejection:', ev.reason);
+    safeToast('ネットワークまたは認証で問題が発生しました。');
+    enableAllButtons();
+  });
 
-    // expose a helper to initialize with URL/key (convenience)
-    window.__app_configure = async function(url, key) {
-      try {
-        const ok = await window.__app_init(url, key);
-        if (ok) {
-          // after init, call after_init hook
-          try { window.__app_after_init && window.__app_after_init(); } catch(e){}
-        }
-        return ok;
-      } catch (e) {
-        console.error("configure error", e);
-        return false;
-      }
-    };
-
-    // Password reset (alternative flow if resetPasswordForEmail not present)
-    async function sendPasswordReset(email) {
-      const client = _getSupabase();
-      if (!client) throw new Error("システム未初期化");
-      // prefer new API
-      if (typeof client.auth.resetPasswordForEmail === "function") {
-        return await client.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
-      }
-      // fallback older API
-      if (client.auth.api && typeof client.auth.api.resetPasswordForEmail === "function") {
-        return await client.auth.api.resetPasswordForEmail(email);
-      }
-      throw new Error("パスワード再設定機能が利用できません");
-    }
-
-    // Attach forgot modal send using the above helper (idempotent)
-    if (typeof forgotSendBtn !== "undefined" && forgotSendBtn) {
-      forgotSendBtn.addEventListener("click", async () => {
-        const email = (forgotEmail.value || "").trim();
-        forgotMsg.textContent = "";
-        if (!email) { forgotMsg.textContent = "メールアドレスを入力してください。"; return; }
-        try {
-          setBtn(forgotSendBtn, false);
-          const res = await sendPasswordReset(email);
-          // res may contain error or data depending on API
-          if (res && res.error) throw res.error;
-          forgotMsg.textContent = "再設定メールを送信しました。メールを確認してください。";
-        } catch (err) {
-          console.error("sendPasswordReset error", err);
-          forgotMsg.textContent = friendlyAuthMessage(err);
-        } finally {
-          setBtn(forgotSendBtn, true);
-        }
+  function enableAllButtons(){
+    try {
+      document.querySelectorAll('button').forEach(b => {
+        b.disabled = false;
+        b.style.opacity = '1';
       });
-    }
+    } catch(e){}
+  }
 
-    // helper to set button disabled style
-    function setBtn(btn, enabled) {
-      if (!btn) return;
-      btn.disabled = !enabled;
-      btn.style.opacity = enabled ? "1" : "0.6";
+  function safeToast(msg, timeout = 4500){
+    if (window.__keiri_showToast) window.__keiri_showToast(msg, timeout);
+    else {
+      try { console.log('TOAST:', msg); } catch(e){}
     }
+  }
 
-    // ensure login/signup handlers are robust if user clicked before init
-    // (these handlers call window.__app_supabase if available)
-    const attachRobustHandlers = () => {
-      const sBtn = document.getElementById("signupBtn");
-      if (sBtn && !sBtn.__robust) {
-        sBtn.__robust = true;
-        sBtn.addEventListener("click", async () => {
-          signupMsg.textContent = "";
-          const email = signupEmail.value.trim();
-          const pw = signupPassword.value;
-          const confirm = signupPasswordConfirm.value;
-          const v = validatePasswordClient(pw, confirm);
-          if (!v.ok) { signupMsg.textContent = v.msg; return; }
-          const client = _getSupabase();
-          if (!client) { signupMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
-          setBtn(sBtn, false);
-          try {
-            const res = await client.auth.signUp({ email, password: pw });
-            if (res.error) throw res.error;
-            signupMsg.textContent = "確認メールを送信しました。メールを確認してください。";
-            signupEmail.value = ""; signupPassword.value = ""; signupPasswordConfirm.value = "";
-          } catch (err) {
-            console.error("signup error", err);
-            signupMsg.textContent = friendlyAuthMessage(err);
-          } finally {
-            setBtn(sBtn, true);
+  window.__keiri_checkKeySanity = function(key){
+    if (!key) return { ok:false, reason:'キーが空です' };
+    const cleaned = key.replace(/[\u200B-\u200D\uFEFF]/g,'');
+    if (cleaned !== key) {
+      return { ok:false, reason:'不可視文字が含まれています（コピー時に混入）' };
+    }
+    if (key.length < 20) {
+      return { ok:false, reason:'キーが短すぎます。anon key を貼ってください。' };
+    }
+    return { ok:true };
+  };
+
+  window.__keiri_diagnoseConnection = async function(url, key){
+    const result = { ok:false, steps:[] };
+    if (!navigator.onLine) {
+      result.steps.push('❌ オフラインです。ネットワークを確認してください。');
+      return result;
+    }
+    result.steps.push('✔ ネットワーク: オンライン');
+    if (!url || !url.startsWith('https://')) {
+      result.steps.push('❌ Supabase URL が不正です');
+      return result;
+    }
+    result.steps.push('✔ URL 形式 OK');
+    const sanity = window.__keiri_checkKeySanity(key);
+    if (!sanity.ok) {
+      result.steps.push('❌ anon key に問題: ' + sanity.reason);
+      return result;
+    }
+    result.steps.push('✔ anon key OK');
+
+    try {
+      if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+        result.steps.push('❌ Supabase ライブラリが読み込まれていません（CDN を確認）');
+        return result;
+      }
+      const client = window.supabase.createClient(url, key);
+      const controller = new AbortController();
+      const timeout = setTimeout(()=>controller.abort(), 6000);
+
+      try {
+        const { data, error } = await client.auth.getSession({ signal: controller.signal });
+        if (error) {
+          result.steps.push('❌ Supabase 応答エラー: ' + (error.message || JSON.stringify(error)));
+        } else {
+          result.steps.push('✔ Supabase 応答 OK');
+          result.ok = true;
+        }
+      } catch (e) {
+        result.steps.push('❌ Supabase 応答タイムアウトまたはネットワークエラー: ' + (e.message || e));
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      return result;
+
+    } catch(err){
+      result.steps.push('❌ Supabase 接続失敗: ' + (err.message || err));
+      return result;
+    }
+  };
+
+  window.__keiri_safeCall = async function(fn, label='処理'){
+    const max = 4;
+    let lastErr = null;
+    for (let i=0;i<max;i++){
+      try {
+        const r = await fn();
+        return r;
+      } catch(err){
+        lastErr = err;
+        console.warn(`Retry ${i+1}/${max} for ${label}`, err);
+        await new Promise(res => setTimeout(res, 500 * (i+1)));
+      }
+    }
+    safeToast(`${label} に失敗しました。ネットワークまたは認証を確認してください。`);
+    throw lastErr;
+  };
+
+  window.__keiri_autoRecoverClient = async function(){
+    try {
+      const get = window.__keiri_getClient;
+      if (!get) return;
+      const client = get();
+      if (client) return;
+      const url = document.getElementById('supabaseUrlInput')?.value || document.getElementById('supabaseUrlInputPart2')?.value || '';
+      const key = document.getElementById('supabaseKeyInput')?.value || document.getElementById('supabaseKeyInputPart2')?.value || '';
+      if (!url || !key) return;
+      const diag = await window.__keiri_diagnoseConnection(url, key);
+      if (!diag.ok) {
+        console.warn('autoRecoverClient: 診断失敗', diag.steps);
+        return;
+      }
+      const newClient = window.supabase.createClient(url, key);
+      if (typeof window.__keiri_setSupabaseClient === 'function') {
+        try { window.__keiri_setSupabaseClient(newClient); } catch(e){}
+      } else {
+        window.__keiri_supabase = newClient;
+        window.__keiri_getClient = function(){ return window.__keiri_supabase; };
+      }
+      safeToast('Supabase クライアントを自動復旧しました');
+      try { if (typeof window.__keiri_afterInit === 'function') await window.__keiri_afterInit(newClient); } catch(e){ console.warn(e); }
+      try { if (typeof window.__keiri_initAuth === 'function') await window.__keiri_initAuth(); } catch(e){ /* ignore */ }
+      return newClient;
+    } catch(e){
+      console.warn('autoRecoverClient error', e);
+    }
+  };
+
+  setInterval(async () => {
+    try {
+      const get = window.__keiri_getClient;
+      if (!get) return;
+      const client = get();
+      if (!client) {
+        await window.__keiri_autoRecoverClient();
+        return;
+      }
+      try {
+        const { data, error } = await client.auth.getSession();
+        if (error) {
+          console.warn('Session ping failed, attempting recovery…', error);
+          await window.__keiri_autoRecoverClient();
+        }
+      } catch(e){
+        console.warn('Session ping exception, attempting recovery…', e);
+        await window.__keiri_autoRecoverClient();
+      }
+    } catch(e){
+      console.warn('Periodic check error', e);
+    }
+  }, 15000);
+
+  const diagBtn = document.getElementById('diagBtn') || document.getElementById('showAdvancedBtn') || document.getElementById('showAdvancedBtnPart2');
+  const diagMsg = document.getElementById('diagMsg') || document.getElementById('supabaseDiag') || document.getElementById('supabaseDiagPart2');
+
+  if (diagBtn && !diagBtn.__wired) {
+    diagBtn.__wired = true;
+    diagBtn.addEventListener('click', async () => {
+      const url = document.getElementById('supabaseUrlInput')?.value || document.getElementById('supabaseUrlInputPart2')?.value || '';
+      const key = document.getElementById('supabaseKeyInput')?.value || document.getElementById('supabaseKeyInputPart2')?.value || '';
+      const result = await window.__keiri_diagnoseConnection(url, key);
+      if (diagMsg) {
+        diagMsg.textContent = result.steps.join('\n');
+        diagMsg.classList.remove('hidden');
+      }
+      if (result.ok) safeToast('Supabase 接続 OK');
+      else safeToast('接続に問題があります');
+    });
+  }
+
+  function watchKeyInputs(){
+    try {
+      const keyEls = [document.getElementById('supabaseKeyInput'), document.getElementById('supabaseKeyInputPart2')].filter(Boolean);
+      keyEls.forEach(el => {
+        if (el.__watched) return;
+        el.__watched = true;
+        el.addEventListener('input', () => {
+          const v = el.value || '';
+          const cleaned = v.replace(/[\u200B-\u200D\uFEFF]/g,'');
+          if (cleaned !== v) {
+            safeToast('キーに不可視文字が含まれています。再度コピーして貼り付けしてください。', 5000);
           }
         });
-      }
+      });
+    } catch(e){ console.warn(e); }
+  }
+  watchKeyInputs();
 
-      const lBtn = document.getElementById("loginBtn");
-      if (lBtn && !lBtn.__robust) {
-        lBtn.__robust = true;
-        lBtn.addEventListener("click", async () => {
-          loginMsg.textContent = ""; clearHints();
-          const email = loginEmail.value.trim();
-          const pw = loginPassword.value;
-          if (!email || !pw) { loginMsg.textContent = "メールアドレスとパスワードを入力してください。"; return; }
-          const client = _getSupabase();
-          if (!client) { loginMsg.textContent = "システム未初期化です。後で再試行してください。"; return; }
-          setBtn(lBtn, false);
-          try {
-            const { data, error } = await client.auth.signInWithPassword({ email, password: pw });
-            if (error) throw error;
-            // if session returned, update UI
-            if (data && data.user) {
-              currentUser = data.user;
-              loginUserEmail.textContent = currentUser.email || "ログイン中";
-              document.getElementById("appArea").classList.remove("hidden");
-              document.getElementById("appArea").setAttribute("aria-hidden","false");
-              ensureTodayDate();
-              await loadCategories(); await loadTransactions(); await renderSummary();
-            }
-            loginMsg.textContent = "";
-          } catch (err) {
-            console.error("login error", err);
-            showLoginErrorHints(err);
-          } finally {
-            setBtn(lBtn, true);
-          }
-        });
-      }
-    };
+  window.__keiri_networkDiagnostics = function(){
+    const out = [];
+    out.push(`navigator.onLine: ${navigator.onLine}`);
+    try {
+      out.push(`User agent: ${navigator.userAgent}`);
+      out.push(`Platform: ${navigator.platform}`);
+      out.push(`Connection: ${navigator.connection ? JSON.stringify({
+        downlink: navigator.connection.downlink,
+        effectiveType: navigator.connection.effectiveType,
+        rtt: navigator.connection.rtt
+      }) : 'n/a'}`);
+    } catch(e){}
+    return out.join('\n');
+  };
 
-    // run attach
-    try { attachRobustHandlers(); } catch(e){ console.warn(e); }
+  window.__keiri_manualRecover = async function(){
+    safeToast('手動で自動復旧を試行します', 2500);
+    return await window.__keiri_autoRecoverClient();
+  };
 
-    // expose helper to programmatically sign in (for tests)
-    window.__app_signin = async function(email, password) {
-      const client = _getSupabase();
-      if (!client) throw new Error("supabase not initialized");
-      const { data, error } = await client.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      return data;
-    };
+  console.log('Part7 loaded: 高度エラーハンドリング・診断・自動復旧ロジック 完了');
 
-    // small debug
-    console.log("Part4 loaded: auth helpers attached");
-  })();
+})();
 </script>
-<!-- Part5/5 -->
-<script>
-  // Part5: 最終パーツ — 補助関数、エラーハンドリング、初期化トリガー、終了タグ
-  (function(){
-    // safety: ensure global supabase reference is consistent
-    const getClient = () => window.__app_supabase || (window.supabase && window.supabase.createClient ? window.supabase : null);
 
-    // Robust loadTransactions/loadCategories wrappers (idempotent)
-    async function safeLoadCategories() {
-      try { await loadCategories(); } catch (e) { console.warn("safeLoadCategories", e); }
-    }
-    async function safeLoadTransactions() {
-      try { await loadTransactions(); } catch (e) { console.warn("safeLoadTransactions", e); }
-    }
-
-    // Ensure UI buttons are enabled (recover from disabled state)
-    function enableAllButtons() {
-      Array.from(document.querySelectorAll("button")).forEach(b => { b.disabled = false; b.style.opacity = "1"; });
-    }
-
-    // Global error handler to surface unexpected exceptions to console and UI
-    window.addEventListener("error", (ev) => {
-      console.error("Unhandled error:", ev.error || ev.message, ev);
-      // optionally show a non-blocking toast (simple)
-      try {
-        const el = document.getElementById("loginMsg") || document.getElementById("signupMsg");
-        if (el) el.textContent = "予期せぬエラーが発生しました。コンソールを確認してください。";
-      } catch(e){}
-      enableAllButtons();
-    });
-
-    window.addEventListener("unhandledrejection", (ev) => {
-      console.error("Unhandled rejection:", ev.reason);
-      try {
-        const el = document.getElementById("loginMsg") || document.getElementById("signupMsg");
-        if (el) el.textContent = "ネットワークまたは認証で問題が発生しました。";
-      } catch(e){}
-      enableAllButtons();
-    });
-
-    // Small utility: show modal message
-    function showModalMessage(title, message) {
-      try {
-        alert(title + "\n\n" + message);
-      } catch(e){}
-    }
-
-    // Expose a programmatic logout helper
-    window.__app_logout = async function() {
-      const client = getClient();
-      if (!client) return;
-      try { await client.auth.signOut(); } catch(e){ console.warn(e); }
-      try { onUserSignedOut(); } catch(e){ console.warn(e); }
-    };
-
-    // If the user provided SUPABASE_URL and SUPABASE_KEY as globals, auto-init
-    (async function autoInitFromGlobals(){
-      try {
-        const url = window.SUPABASE_URL || window.__SUPABASE_URL || "";
-        const key = window.SUPABASE_KEY || window.__SUPABASE_KEY || "";
-        if (url && key && typeof window.__app_configure === "function") {
-          const ok = await window.__app_configure(url, key);
-          if (ok) {
-            // call after init hook
-            try { window.__app_after_init && window.__app_after_init(); } catch(e){}
-          }
-        }
-      } catch(e){ console.warn("autoInitFromGlobals", e); }
-    })();
-
-    // Accessibility: close forgot modal on Escape
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        try { document.getElementById("forgotModal").classList.add("hidden"); } catch(e){}
-      }
-    });
-
-    // Defensive: ensure critical DOM elements exist and wire fallback handlers
-    (function ensureCriticalDom() {
-      try {
-        if (!document.getElementById("loginBtn")) {
-          console.warn("loginBtn missing");
-        }
-        if (!document.getElementById("signupBtn")) {
-          console.warn("signupBtn missing");
-        }
-        // ensure logout button exists
-        if (!document.getElementById("logoutBtn")) {
-          // create a minimal logout button if missing
-          const btn = document.createElement("button");
-          btn.id = "logoutBtn";
-          btn.className = "btn-sub";
-          btn.textContent = "ログアウト";
-          btn.style.display = "none";
-          document.body.appendChild(btn);
-          btn.addEventListener("click", async () => { try { await window.__app_logout(); } catch(e){} });
-        }
-      } catch(e){ console.warn(e); }
-    })();
-
-    // Final debug log
-    console.log("Part5 loaded: final utilities attached");
-  })();
-</script>
 </body>
 </html>
